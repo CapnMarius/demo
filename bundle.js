@@ -5790,7 +5790,7 @@ exports.getHolderImgStyle = function (h) {
     if (!h.content) {
         return style;
     }
-    style = __assign({}, style, { position: "absolute", objectFit: "cover" });
+    style = __assign({}, style, { position: "absolute", objectFit: "cover", width: "100%", height: "100%" });
     return style;
 };
 exports.getHolderShapeStyle = function (h) {
@@ -7095,7 +7095,7 @@ exports.getContainerStyle = function (areaDimension) { return ({
     height: areaDimension.height + "px",
     overflow: "hidden",
 }); };
-exports.getImgStyle = function (imagePosition, rotation) { return (__assign({ position: "absolute", objectFit: "cover" }, dom_1.getRectStyle(imagePosition), { transform: exports.getRotateStyleProp(rotation) })); };
+exports.getImgStyle = function (imagePosition, rotation) { return (__assign({ position: "absolute", objectFit: "cover", width: "100%", height: "100%" }, dom_1.getRectStyle(imagePosition), { transform: exports.getRotateStyleProp(rotation) })); };
 exports.getRotateStyleProp = function (rotation) { return "rotate(" + rotation + "deg)"; };
 exports.getAreaScale = function (target, containerRect) { return helpers_1.getScale(target, { width: containerRect.width * .8, height: containerRect.height * .8 }); };
 exports.getScaledItemRect = function (containerRect, areaRect, itemRect) {
