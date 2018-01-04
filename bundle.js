@@ -2869,14 +2869,14 @@ var DragItem = (function () {
             this.setDOMRelativePosition(this.position);
         }
         this.events = [
-            domEA.on("mousemove", function (event) { return _this.onMouseMove(event); }),
+            domEA.on(["mousemove", "touchmove"], function (event) { return _this.onMouseMove(event); }),
             domEA.on("contextmenu", function (event) {
                 if (event.path.indexOf(_this.dom) !== -1) {
                     _this.reset(true);
                     m.redraw();
                 }
             }),
-            domEA.on("mouseup", function (event) { return _this.onMouseUp(event); }),
+            domEA.on(["mouseup", "touchend"], function (event) { return _this.onMouseUp(event); }),
         ];
     };
     DragItem.prototype.onbeforeupdate = function (vnode, old) {
@@ -2904,7 +2904,16 @@ var DragItem = (function () {
                     if (!vnode.attrs.dragHandle && !vnode.attrs.preventMove) {
                         _this.onDrag(event);
                     }
+                }, ontouchstart: function (event) {
+                    dom_1.stopEvent(event);
+                    _this.pressStamp = Date.now();
+                    if (!vnode.attrs.dragHandle && !vnode.attrs.preventMove) {
+                        _this.onDrag(event);
+                    }
                 }, onmouseup: function (event) {
+                    dom_1.stopEvent(event);
+                    _this.onClick(event);
+                }, ontouchup: function (event) {
                     dom_1.stopEvent(event);
                     _this.onClick(event);
                 } },
@@ -2989,10 +2998,10 @@ var DragItem = (function () {
         });
         return targetArea;
     };
-    DragItem.prototype.getCursorOffset = function (event) {
+    DragItem.prototype.getCursorOffset = function (x, y) {
         return {
-            left: event.clientX + this.dragOffset.left,
-            top: event.clientY + this.dragOffset.top,
+            left: x + this.dragOffset.left,
+            top: y + this.dragOffset.top,
         };
     };
     DragItem.prototype.setDOMFixedPosition = function (position) {
@@ -3030,10 +3039,10 @@ var DragItem = (function () {
     DragItem.prototype.setPosition = function (position) {
         this.position = __assign({}, this.position, position);
     };
-    DragItem.getFixedOffset = function (position, event) {
+    DragItem.getFixedOffset = function (position, x, y) {
         return {
-            left: position.left - event.clientX,
-            top: position.top - event.clientY,
+            left: position.left - x,
+            top: position.top - y,
         };
     };
     DragItem.prototype.getCalculatedPosition = function (position) {
@@ -3067,12 +3076,13 @@ var DragItem = (function () {
             }
             dom_1.setStyle(this.placeholder, dom_1.getRectStyle(this.placeholderPosition));
         }
-        this.dragOffset = DragItem.getFixedOffset(this.previousFixedPosition, event);
+        this.dragOffset = DragItem.getFixedOffset(this.previousFixedPosition, this.getClientX(event), this.getClientY(event));
         object_1.exec(this.onitemmovestart, event, this, this.sourceArea, this.targetArea);
         this.dom.classList.add("dragging");
     };
     DragItem.prototype.onDragMove = function (event) {
         var _this = this;
+        console.log(event);
         this.lastTargetArea = this.targetArea;
         this.targetArea = this.getTargetArea();
         var disable = function (area) {
@@ -3103,7 +3113,7 @@ var DragItem = (function () {
             }
         }
         var position = __assign({}, this.previousFixedPosition, this.staticPosition);
-        position = __assign({}, position, this.getCursorOffset(event));
+        position = __assign({}, position, this.getCursorOffset(this.getClientX(event), this.getClientY(event)));
         if (this.preventDrop !== true) {
             position = this.getCalculatedPosition(position);
         }
@@ -3160,7 +3170,7 @@ var DragItem = (function () {
         object_1.exec(this.onitemresizestart, event, this, this.sourceArea);
         this.dom.classList.add("resizing");
     };
-    DragItem.prototype.onResizeMove = function (event) {
+    DragItem.prototype.onResizeMove = function (x, y) {
         if (!this.sourceArea) {
             return;
         }
@@ -3168,7 +3178,7 @@ var DragItem = (function () {
         var position = __assign({}, this.position);
         var diff = { left: 0, top: 0, right: 0, bottom: 0 };
         if (this.resizeSide === "left") {
-            diff.left = event.clientX - this.previousFixedPosition.left;
+            diff.left = x - this.previousFixedPosition.left;
             var diffLeft = this.position.left + diff.left;
             if (diffLeft < 0) {
                 diff.left -= diffLeft;
@@ -3177,7 +3187,7 @@ var DragItem = (function () {
             position.width = this.position.width - diff.left;
         }
         else if (this.resizeSide === "top") {
-            diff.top = event.clientY - this.previousFixedPosition.top;
+            diff.top = y - this.previousFixedPosition.top;
             var diffTop = this.position.top + diff.top;
             if (diffTop < 0) {
                 diff.top -= diffTop;
@@ -3186,7 +3196,7 @@ var DragItem = (function () {
             position.height = this.position.height - diff.top;
         }
         else if (this.resizeSide === "right") {
-            diff.right = event.clientX - this.position.width - this.previousFixedPosition.left;
+            diff.right = x - this.position.width - this.previousFixedPosition.left;
             var diffRight = position.left + this.position.width + diff.right;
             if (diffRight > areaRect.width) {
                 diff.right += areaRect.width - diffRight;
@@ -3194,7 +3204,7 @@ var DragItem = (function () {
             position.width = this.position.width + diff.right;
         }
         else if (this.resizeSide === "bottom") {
-            diff.bottom = event.clientY - this.position.height - this.previousFixedPosition.top;
+            diff.bottom = y - this.position.height - this.previousFixedPosition.top;
             var diffBottom = position.top + this.position.height + diff.bottom;
             if (diffBottom > areaRect.height) {
                 diff.bottom += areaRect.height - diffBottom;
@@ -3239,8 +3249,20 @@ var DragItem = (function () {
             this.onDragMove(event);
         }
         else if (this.resizeStarted) {
-            this.onResizeMove(event);
+            this.onResizeMove(this.getClientX(event), this.getClientY(event));
         }
+    };
+    DragItem.prototype.getClientX = function (event) {
+        if (event.clientX) {
+            return event.clientX;
+        }
+        return event.touches[0].clientX;
+    };
+    DragItem.prototype.getClientY = function (event) {
+        if (event.clientY) {
+            return event.clientX;
+        }
+        return event.touches[0].clientY;
     };
     return DragItem;
 }());
@@ -3894,9 +3916,17 @@ window.addEventListener("mousemove", (function (event) {
     event.redraw = false;
     domEA.emit("mousemove", event);
 }));
+window.addEventListener("touchmove", (function (event) {
+    event.redraw = false;
+    domEA.emit("touchmove", event);
+}));
 window.addEventListener("mouseup", (function (event) {
     event.redraw = false;
     domEA.emit("mouseup", event);
+}));
+window.addEventListener("touchend", (function (event) {
+    event.redraw = false;
+    domEA.emit("touchend", event);
 }));
 window.addEventListener("resize", (function (event) {
     event.redraw = false;
