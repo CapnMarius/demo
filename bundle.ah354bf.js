@@ -1852,14 +1852,21 @@ function updateLink (link, options, obj) {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var helpers_1 = __webpack_require__(6);
-exports.stopEvent = function (event, hard) {
-    if (hard === void 0) { hard = false; }
-    event.redraw = false;
-    event.preventDefault();
-    if (hard === true) {
+exports.devent = function (event, options) {
+    if (options === void 0) { options = { redraw: false, passive: false, preventDefault: true, stopPropagation: false }; }
+    if (!options.redraw) {
+        event.redraw = false;
+    }
+    if (!options.passive) {
+        event.passive = false;
+    }
+    if (options.preventDefault) {
+        event.preventDefault();
+    }
+    if (options.stopPropagation) {
         event.stopPropagation();
     }
-    return true;
+    return event;
 };
 exports.getContainerElementByClassName = function (dom, className) {
     var container = dom.parentElement;
@@ -2899,23 +2906,19 @@ var DragItem = (function () {
         var _this = this;
         return [
             m("div", { className: object_1.cleanString("component--drag", "drag-item", vnode.attrs.className, !vnode.attrs.dragHandle && "handle"), style: vnode.attrs.style, onmousedown: function (event) {
-                    dom_1.stopEvent(event);
                     _this.pressStamp = Date.now();
                     if (!vnode.attrs.dragHandle && !vnode.attrs.preventMove) {
-                        _this.onDrag(event);
+                        _this.onDrag(dom_1.devent(event));
                     }
                 }, ontouchstart: function (event) {
-                    dom_1.stopEvent(event);
                     _this.pressStamp = Date.now();
                     if (!vnode.attrs.dragHandle && !vnode.attrs.preventMove) {
-                        _this.onDrag(event);
+                        _this.onDrag(dom_1.devent(event));
                     }
                 }, onmouseup: function (event) {
-                    dom_1.stopEvent(event);
-                    _this.onClick(event);
-                }, ontouchup: function (event) {
-                    dom_1.stopEvent(event);
-                    _this.onClick(event);
+                    _this.onClick(dom_1.devent(event));
+                }, ontouchend: function (event) {
+                    _this.onClick(dom_1.devent(event));
                 } },
                 vnode.attrs.dragHandle && !vnode.attrs.preventMove && this.getDragHandleView(vnode),
                 !vnode.attrs.preventResize && this.getResizeBorderView(vnode),
@@ -2926,8 +2929,7 @@ var DragItem = (function () {
     DragItem.prototype.getDragHandleView = function (vnode) {
         var _this = this;
         return m("div", { className: "handle", onmousedown: function (event) {
-                dom_1.stopEvent(event);
-                _this.onDrag(event);
+                _this.onDrag(dom_1.devent(event));
             } }, vnode.attrs.dragHandle === true ? null : vnode.attrs.dragHandle);
     };
     DragItem.prototype.getPlaceholderView = function (vnode) {
@@ -2941,19 +2943,19 @@ var DragItem = (function () {
         var _this = this;
         return [
             m("div", { onmousedown: function (event) {
-                    dom_1.stopEvent(event, true);
+                    dom_1.devent(event, { stopPropagation: true });
                     _this.onResize("left");
                 }, className: "border left" }),
             m("div", { onmousedown: function (event) {
-                    dom_1.stopEvent(event, true);
+                    dom_1.devent(event, { stopPropagation: true });
                     _this.onResize("right");
                 }, className: "border right" }),
             m("div", { onmousedown: function (event) {
-                    dom_1.stopEvent(event, true);
+                    dom_1.devent(event, { stopPropagation: true });
                     _this.onResize("top");
                 }, className: "border top" }),
             m("div", { onmousedown: function (event) {
-                    dom_1.stopEvent(event, true);
+                    dom_1.devent(event, { stopPropagation: true });
                     _this.onResize("bottom");
                 }, className: "border bottom" }),
         ];
@@ -3060,7 +3062,7 @@ var DragItem = (function () {
         return position;
     };
     DragItem.prototype.onClick = function (event) {
-        if (event.which === 1 && Date.now() < this.pressStamp + mouseEventDelay) {
+        if (Date.now() < this.pressStamp + mouseEventDelay) {
             object_1.exec(this.onclick, event, this);
         }
     };
@@ -3082,7 +3084,6 @@ var DragItem = (function () {
     };
     DragItem.prototype.onDragMove = function (event) {
         var _this = this;
-        console.log(event);
         this.lastTargetArea = this.targetArea;
         this.targetArea = this.getTargetArea();
         var disable = function (area) {
@@ -3260,7 +3261,7 @@ var DragItem = (function () {
     };
     DragItem.prototype.getClientY = function (event) {
         if (event.clientY) {
-            return event.clientX;
+            return event.clientY;
         }
         return event.touches[0].clientY;
     };
@@ -3520,7 +3521,7 @@ var Holder = (function () {
     }
     Holder.prototype.view = function (v) {
         var h = v.attrs.holder;
-        return m("div", { className: object_1.cleanString("holder", v.attrs.className), style: exports.getHolderStyle(h, v.attrs.position), onclick: function (event) { return dom_1.stopEvent(event) && object_1.exec(v.attrs.onclick, event); } },
+        return m("div", { className: object_1.cleanString("holder", v.attrs.className), style: exports.getHolderStyle(h, v.attrs.position), onclick: function (event) { return object_1.exec(v.attrs.onclick, dom_1.devent(event)); } },
             m(HolderContent_1.default, { holder: v.attrs.holder, thumb: v.attrs.thumb }));
     };
     return Holder;
@@ -3593,13 +3594,13 @@ var DragArea = (function () {
         };
     };
     DragArea.prototype.onItemDrop = function (event, item, sourceArea) {
-        return dom_1.stopEvent(event) && object_1.exec(this.onareadrop, event, item, sourceArea, this);
+        return object_1.exec(this.onareadrop, dom_1.devent(event), item, sourceArea, this);
     };
     DragArea.prototype.onItemHover = function (event, item, sourceArea, initial) {
-        return dom_1.stopEvent(event) && object_1.exec(this.onareahover, event, item, sourceArea, this, initial);
+        return object_1.exec(this.onareahover, dom_1.devent(event), item, sourceArea, this, initial);
     };
     DragArea.prototype.onItemRemove = function (event, item) {
-        return dom_1.stopEvent(event) && object_1.exec(this.onarearemove, event, item, this);
+        return object_1.exec(this.onarearemove, dom_1.devent(event), item, this);
     };
     DragArea.prototype.onbeforeupdate = function (vnode, old) {
         return this.attrsChanged(vnode.attrs, old.attrs);
@@ -3625,7 +3626,7 @@ var DragArea = (function () {
     };
     DragArea.prototype.view = function (vnode) {
         var _this = this;
-        return m("div", { className: "component--drag drag-area " + (vnode.attrs.className || ""), style: dom_1.getRectStyle(vnode.attrs.position || {}), onclick: function (event) { return dom_1.stopEvent(event) && object_1.exec(_this.onclick, event, _this); } }, vnode.children);
+        return m("div", { className: "component--drag drag-area " + (vnode.attrs.className || ""), style: dom_1.getRectStyle(vnode.attrs.position || {}), onclick: function (event) { return object_1.exec(_this.onclick, dom_1.devent(event), _this); } }, vnode.children);
     };
     DragArea.prototype.attrsChanged = function (next, prev) {
         return (next.className !== prev.className ||
@@ -3687,11 +3688,11 @@ var Library = (function () {
         var _this = this;
         var children = vnode.children;
         return m("div", { className: object_1.cleanString("component--library", vnode.attrs.className) },
-            m("div", { oncreate: function (node) { return _this.c.prev = node.dom; }, className: "nav prev", onclick: function (event) { return dom_1.stopEvent(event) && _this.c.navigate(-1); } }, "<"),
+            m("div", { oncreate: function (node) { return _this.c.prev = node.dom; }, className: "nav prev", onclick: function (event) { return dom_1.devent(event) && _this.c.navigate(-1); } }, "<"),
             m("div", { oncreate: function (node) { return _this.c.container = node.dom; }, className: "items" }, children.map(function (child, index) {
-                return m("div", { className: "item", onclick: function (event) { return dom_1.stopEvent(event) && object_1.exec(vnode.attrs.onclick, event, index); } }, child);
+                return m("div", { className: "item", onclick: function (event) { return object_1.exec(vnode.attrs.onclick, dom_1.devent(event), index); } }, child);
             })),
-            m("div", { oncreate: function (node) { return _this.c.next = node.dom; }, className: "nav next", onclick: function (event) { return dom_1.stopEvent(event) && _this.c.navigate(1); } }, ">"));
+            m("div", { oncreate: function (node) { return _this.c.next = node.dom; }, className: "nav next", onclick: function (event) { return dom_1.devent(event) && _this.c.navigate(1); } }, ">"));
     };
     return Library;
 }());
@@ -3909,47 +3910,56 @@ var easydeps_1 = __webpack_require__(7);
 var eventaggregator_1 = __webpack_require__(8);
 var m = __webpack_require__(0);
 var productManager_1 = __webpack_require__(32);
+var dom_1 = __webpack_require__(4);
 var domEA = eventaggregator_1.default.getInstance("dom");
 var productEA = eventaggregator_1.default.getInstance("product");
 var deps = easydeps_1.default.getInstance();
 window.addEventListener("mousemove", (function (event) {
-    event.redraw = false;
+    dom_1.devent(event, { preventDefault: false });
     domEA.emit("mousemove", event);
 }));
 window.addEventListener("touchmove", (function (event) {
-    event.redraw = false;
+    dom_1.devent(event, { preventDefault: false });
     domEA.emit("touchmove", event);
 }));
+window.addEventListener("mousedown", (function (event) {
+    dom_1.devent(event, { preventDefault: false });
+    domEA.emit("mousedown", event);
+}));
+window.addEventListener("touchstart", (function (event) {
+    dom_1.devent(event, { preventDefault: false });
+    domEA.emit("touchstart", event);
+}));
 window.addEventListener("mouseup", (function (event) {
-    event.redraw = false;
+    dom_1.devent(event, { preventDefault: false });
     domEA.emit("mouseup", event);
 }));
 window.addEventListener("touchend", (function (event) {
-    event.redraw = false;
+    dom_1.devent(event, { preventDefault: false });
     domEA.emit("touchend", event);
 }));
 window.addEventListener("resize", (function (event) {
-    event.redraw = false;
+    dom_1.devent(event, { preventDefault: false });
     domEA.emit("resize", event);
 }));
 window.addEventListener("mousewheel", (function (event) {
-    event.redraw = false;
+    dom_1.devent(event, { preventDefault: false });
     domEA.emit("scroll", event);
 }));
 window.addEventListener("click", (function (event) {
-    event.redraw = false;
+    dom_1.devent(event, { preventDefault: false });
     domEA.emit("click", event);
 }));
 window.addEventListener("keydown", (function (event) {
-    event.redraw = false;
+    dom_1.devent(event, { preventDefault: false });
     domEA.emit("keydown", event);
 }));
 window.addEventListener("keyup", (function (event) {
-    event.redraw = false;
+    dom_1.devent(event, { preventDefault: false });
     domEA.emit("keyup", event);
 }));
 window.addEventListener("contextmenu", (function (event) {
-    event.redraw = false;
+    dom_1.devent(event, { preventDefault: false });
     domEA.emit("contextmenu", event);
 }));
 productEA.on("change", function () {
@@ -5990,11 +6000,11 @@ var Editor = (function () {
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Background color"),
             m("div", { className: "colorSelectPicker" },
-                m(Select_1.default, { value: attrs.holder.content.backgroundColor || attrs.contentoptions.backgroundColor[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentbackgroundcolorchange, value); } }, attrs.contentoptions.backgroundColor.map(function (backgroundColor) { return m("span", { "data-option": backgroundColor, style: { backgroundColor: backgroundColor } }, backgroundColor); })),
-                m(ColorPicker_1.default, { onchange: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentbackgroundcolorchange, value); } }))));
+                m(Select_1.default, { value: attrs.holder.content.backgroundColor || attrs.contentoptions.backgroundColor[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentbackgroundcolorchange, value); } }, attrs.contentoptions.backgroundColor.map(function (backgroundColor) { return m("span", { "data-option": backgroundColor, style: { backgroundColor: backgroundColor } }, backgroundColor); })),
+                m(ColorPicker_1.default, { onchange: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentbackgroundcolorchange, value); } }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Transparency"),
-            m(Select_1.default, { value: attrs.holder.content.opacity, oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentopacitychange, value); } },
+            m(Select_1.default, { value: attrs.holder.content.opacity, oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentopacitychange, value); } },
                 m("span", { "data-option": 0, style: { opacity: 1 } }, "0%"),
                 m("span", { "data-option": .9, style: { opacity: .9 } }, "10%"),
                 m("span", { "data-option": .8, style: { opacity: .8 } }, "20%"),
@@ -6008,8 +6018,8 @@ var Editor = (function () {
         if (attrs.options.depth) {
             options.push(m("div", { className: "option" },
                 m("span", { className: "option-description" }, "Depth"),
-                m("button", { onclick: function (event) { return dom_1.stopEvent(event) && object_1.exec(attrs.ondepthchange, 1); } }, "+"),
-                m("button", { onclick: function (event) { return dom_1.stopEvent(event) && object_1.exec(attrs.ondepthchange, -1); } }, "-")));
+                m("button", { onclick: function (event) { return dom_1.devent(event) && object_1.exec(attrs.ondepthchange, 1); } }, "+"),
+                m("button", { onclick: function (event) { return dom_1.devent(event) && object_1.exec(attrs.ondepthchange, -1); } }, "-")));
         }
         return options;
     };
@@ -6017,33 +6027,33 @@ var Editor = (function () {
         var options = [];
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Content"),
-            m(Input_1.default, { value: attrs.holder.content.value, multiline: true, autofocus: true, oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentvaluechange, value); } })));
+            m(Input_1.default, { value: attrs.holder.content.value, multiline: true, autofocus: true, oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentvaluechange, value); } })));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Font size"),
-            m(Select_1.default, { value: attrs.holder.content.fontSize || attrs.contentoptions.fontSize[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentfontsizechange, value); } }, attrs.contentoptions.fontSize.map(function (fontSize) { return m("span", { "data-option": fontSize }, fontSize); }))));
+            m(Select_1.default, { value: attrs.holder.content.fontSize || attrs.contentoptions.fontSize[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentfontsizechange, value); } }, attrs.contentoptions.fontSize.map(function (fontSize) { return m("span", { "data-option": fontSize }, fontSize); }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Font family"),
-            m(Select_1.default, { style: { width: "200px" }, value: attrs.holder.content.fontFamily || attrs.contentoptions.fontFamily[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentfontfamilychange, value); } }, attrs.contentoptions.fontFamily.map(function (fontFamily) { return m("span", { "data-option": fontFamily, style: { fontFamily: fontFamily } }, fontFamily); }))));
+            m(Select_1.default, { style: { width: "200px" }, value: attrs.holder.content.fontFamily || attrs.contentoptions.fontFamily[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentfontfamilychange, value); } }, attrs.contentoptions.fontFamily.map(function (fontFamily) { return m("span", { "data-option": fontFamily, style: { fontFamily: fontFamily } }, fontFamily); }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Font style"),
-            m(Select_1.default, { value: attrs.holder.content.fontStyle || attrs.contentoptions.fontStyle[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentfontstylechange, value); } }, attrs.contentoptions.fontStyle.map(function (fontStyle) { return m("span", { "data-option": fontStyle, style: { fontStyle: fontStyle } }, fontStyle); }))));
+            m(Select_1.default, { value: attrs.holder.content.fontStyle || attrs.contentoptions.fontStyle[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentfontstylechange, value); } }, attrs.contentoptions.fontStyle.map(function (fontStyle) { return m("span", { "data-option": fontStyle, style: { fontStyle: fontStyle } }, fontStyle); }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Font weight"),
-            m(Select_1.default, { value: attrs.holder.content.fontWeight || attrs.contentoptions.fontWeight[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentfontweightchange, value); } }, attrs.contentoptions.fontWeight.map(function (fontWeight) { return m("span", { "data-option": fontWeight, style: { fontWeight: fontWeight } }, fontWeight); }))));
+            m(Select_1.default, { value: attrs.holder.content.fontWeight || attrs.contentoptions.fontWeight[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentfontweightchange, value); } }, attrs.contentoptions.fontWeight.map(function (fontWeight) { return m("span", { "data-option": fontWeight, style: { fontWeight: fontWeight } }, fontWeight); }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Font decoration"),
-            m(Select_1.default, { value: attrs.holder.content.textDecoration || attrs.contentoptions.textDecoration[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontenttextdecorationchange, value); } }, attrs.contentoptions.textDecoration.map(function (textDecoration) { return m("span", { "data-option": textDecoration, style: { textDecoration: textDecoration } }, textDecoration); }))));
+            m(Select_1.default, { value: attrs.holder.content.textDecoration || attrs.contentoptions.textDecoration[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontenttextdecorationchange, value); } }, attrs.contentoptions.textDecoration.map(function (textDecoration) { return m("span", { "data-option": textDecoration, style: { textDecoration: textDecoration } }, textDecoration); }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Font color"),
             m("div", { className: "colorSelectPicker" },
-                m(Select_1.default, { value: attrs.holder.content.color || attrs.contentoptions.color[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentcolorchange, value); } }, attrs.contentoptions.color.map(function (color) { return m("span", { "data-option": color, style: { color: color } }, color); })),
-                m(ColorPicker_1.default, { onchange: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentcolorchange, value); } }))));
+                m(Select_1.default, { value: attrs.holder.content.color || attrs.contentoptions.color[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentcolorchange, value); } }, attrs.contentoptions.color.map(function (color) { return m("span", { "data-option": color, style: { color: color } }, color); })),
+                m(ColorPicker_1.default, { onchange: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentcolorchange, value); } }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Text align"),
-            m(Select_1.default, { value: attrs.holder.content.align || attrs.contentoptions.align[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentalignchange, value); } }, attrs.contentoptions.align.map(function (align) { return m("span", { "data-option": align, style: { align: align } }, align); }))));
+            m(Select_1.default, { value: attrs.holder.content.align || attrs.contentoptions.align[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentalignchange, value); } }, attrs.contentoptions.align.map(function (align) { return m("span", { "data-option": align, style: { align: align } }, align); }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Text filter"),
-            m(Select_1.default, { className: "filterOptions", value: attrs.holder.content.textFilter || attrs.contentoptions.textFilter[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentfilterchange, value); } }, attrs.contentoptions.textFilter.map(function (filter) {
+            m(Select_1.default, { className: "filterOptions", value: attrs.holder.content.textFilter || attrs.contentoptions.textFilter[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentfilterchange, value); } }, attrs.contentoptions.textFilter.map(function (filter) {
                 return m("span", { "data-option": filter.style },
                     filter.title,
                     m("div", { className: "image-wrapper" },
@@ -6051,7 +6061,7 @@ var Editor = (function () {
             }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Text shadow"),
-            m(Select_1.default, { oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentfilterchange, value); } },
+            m(Select_1.default, { oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentfilterchange, value); } },
                 m("span", { "data-option": {
                         textShadow: "2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 5px #000",
                     } }, "black border"),
@@ -6088,7 +6098,7 @@ var Editor = (function () {
             m("button", { onclick: function (event) { return _this.imageBackgroundRemover = true; } }, "Open background remover tool")));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Image filter"),
-            m(Select_1.default, { className: "filterOptions", value: attrs.holder.content.imageFilter || attrs.contentoptions.imageFilter[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentfilterchange, value); } }, attrs.contentoptions.imageFilter.map(function (filter) {
+            m(Select_1.default, { className: "filterOptions", value: attrs.holder.content.imageFilter || attrs.contentoptions.imageFilter[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentfilterchange, value); } }, attrs.contentoptions.imageFilter.map(function (filter) {
                 return m("span", { "data-option": filter.style },
                     filter.title,
                     m("div", { className: "image-wrapper" },
@@ -6096,7 +6106,7 @@ var Editor = (function () {
             }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Disable image smoothing"),
-            m(Checkbox_1.default, { defaultChecked: attrs.holder.content.pixelated, onclick: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentpixelatedchange, value); } })));
+            m(Checkbox_1.default, { defaultChecked: attrs.holder.content.pixelated, onclick: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentpixelatedchange, value); } })));
         return options;
     };
     Editor.prototype.getShapeEditorOptions = function (attrs) {
@@ -6105,24 +6115,24 @@ var Editor = (function () {
             m("span", { className: "option-description" }, "Icon"),
             m(IconPicker_1.default, { value: attrs.holder.content.value, font: attrs.holder.content.fontFamily, oninput: function (_a, event) {
                     var unicode = _a.unicode, font = _a.font;
-                    dom_1.stopEvent(event);
+                    dom_1.devent(event);
                     object_1.exec(attrs.oncontentvaluechange, unicode);
                     object_1.exec(attrs.oncontentfontfamilychange, font);
                 } })));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Size"),
-            m(Select_1.default, { value: attrs.holder.content.fontSize || attrs.contentoptions.fontSize[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentfontsizechange, value); } }, attrs.contentoptions.fontSize.map(function (fontSize) { return m("span", { "data-option": fontSize }, fontSize); }))));
+            m(Select_1.default, { value: attrs.holder.content.fontSize || attrs.contentoptions.fontSize[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentfontsizechange, value); } }, attrs.contentoptions.fontSize.map(function (fontSize) { return m("span", { "data-option": fontSize }, fontSize); }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Color"),
             m("div", { className: "colorSelectPicker" },
-                m(Select_1.default, { value: attrs.holder.content.color || attrs.contentoptions.color[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentcolorchange, value); } }, attrs.contentoptions.color.map(function (color) { return m("span", { "data-option": color, style: { color: color } }, color); })),
-                m(ColorPicker_1.default, { onchange: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentcolorchange, value); } }))));
+                m(Select_1.default, { value: attrs.holder.content.color || attrs.contentoptions.color[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentcolorchange, value); } }, attrs.contentoptions.color.map(function (color) { return m("span", { "data-option": color, style: { color: color } }, color); })),
+                m(ColorPicker_1.default, { onchange: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentcolorchange, value); } }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Align"),
-            m(Select_1.default, { value: attrs.holder.content.align || attrs.contentoptions.align[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentalignchange, value); } }, attrs.contentoptions.align.map(function (align) { return m("span", { "data-option": align, style: { align: align } }, align); }))));
+            m(Select_1.default, { value: attrs.holder.content.align || attrs.contentoptions.align[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentalignchange, value); } }, attrs.contentoptions.align.map(function (align) { return m("span", { "data-option": align, style: { align: align } }, align); }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Filter"),
-            m(Select_1.default, { className: "filterOptions", value: attrs.holder.content.shapeFilter || attrs.contentoptions.shapeFilter[0], oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentfilterchange, value); } }, attrs.contentoptions.shapeFilter.map(function (filter) {
+            m(Select_1.default, { className: "filterOptions", value: attrs.holder.content.shapeFilter || attrs.contentoptions.shapeFilter[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentfilterchange, value); } }, attrs.contentoptions.shapeFilter.map(function (filter) {
                 return m("span", { "data-option": filter.style },
                     filter.title,
                     m("div", { className: "image-wrapper" },
@@ -6130,7 +6140,7 @@ var Editor = (function () {
             }))));
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Shadow"),
-            m(Select_1.default, { oninput: function (value, event) { return dom_1.stopEvent(event) && object_1.exec(attrs.oncontentfilterchange, value); } },
+            m(Select_1.default, { oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentfilterchange, value); } },
                 m("span", { "data-option": {
                         textShadow: "2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 5px #000",
                     } }, "black border"),
@@ -7766,7 +7776,7 @@ var ImageUploadController = (function () {
             return __generator(this, function (_e) {
                 switch (_e.label) {
                     case 0:
-                        dom_1.stopEvent(event);
+                        dom_1.devent(event);
                         maxwidth = max ? (typeof max === "number" ? max : max[0]) : undefined;
                         maxheight = max ? (typeof max === "number" ? max : max[1]) : undefined;
                         thumbwidth = thumbmax ? (typeof thumbmax === "number" ? thumbmax : thumbmax[0]) : undefined;
@@ -7935,7 +7945,7 @@ var ImageUploadUrl = (function () {
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
-                                dom_1.stopEvent(event);
+                                dom_1.devent(event);
                                 setValue("");
                                 maxwidth = v.attrs.max ? (typeof v.attrs.max === "number" ? v.attrs.max : v.attrs.max[0]) : undefined;
                                 maxheight = v.attrs.max ? (typeof v.attrs.max === "number" ? v.attrs.max : v.attrs.max[1]) : undefined;
@@ -9432,7 +9442,7 @@ var Layout = (function () {
     function Layout() {
     }
     Layout.prototype.view = function (vnode) {
-        return m("div", { className: object_1.cleanString("component--LibraryItemLayout", vnode.attrs.selected && "selected"), onclick: function (event) { return dom_1.stopEvent(event) && object_1.exec(vnode.attrs.onclick, event); } }, vnode.attrs.holders && vnode.attrs.holders.map(function (h) {
+        return m("div", { className: object_1.cleanString("component--LibraryItemLayout", vnode.attrs.selected && "selected"), onclick: function (event) { return object_1.exec(vnode.attrs.onclick, dom_1.devent(event)); } }, vnode.attrs.holders && vnode.attrs.holders.map(function (h) {
             return m("div", { className: "holder" }, getPlaceholderContentIcon(h));
         }));
     };
