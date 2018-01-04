@@ -1934,6 +1934,25 @@ exports.getScaleFromFirstContainer = function (dom, containerClassName, original
     var horizontal = containerRect.width > containerRect.height;
     return horizontal ? (item.offsetHeight / original.height) : (item.offsetWidth / original.width);
 };
+exports.getClientXY = function (event) {
+    if (event.clientX) {
+        return { x: event.clientX, y: event.clientY };
+    }
+    if (event.touches && event.touches[0]) {
+        return { x: event.touches[0].clientX, y: event.touches[0].clientY };
+    }
+    if (event.changedTouches && event.changedTouches[0]) {
+        return { x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY };
+    }
+    return { x: 0, y: 0 };
+};
+exports.getOffsetXY = function (event) {
+    var rect = event.target.getBoundingClientRect();
+    var _a = exports.getClientXY(event), x = _a.x, y = _a.y;
+    x = x - rect.left;
+    y = y - rect.top;
+    return { x: x, y: y };
+};
 
 
 /***/ }),
@@ -2359,6 +2378,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var DTI = __webpack_require__(34);
+var dom_1 = __webpack_require__(4);
 exports.createImage = function (imageData, maxWidth, maxHeight) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
         return [2, new Promise(function (resolve, reject) {
@@ -2517,14 +2537,15 @@ exports.colorPicker = function (canvas, onhover, onclick) {
         throw new Error("canvas not initialized");
     }
     var pick = function (event) {
-        var x = event.layerX;
-        var y = event.layerY;
+        var _a = dom_1.getOffsetXY(event), x = _a.x, y = _a.y;
         var pixel = ctx.getImageData(x, y, 1, 1);
         var data = pixel.data;
         return [data[0], data[1], data[2], data[3]];
     };
     canvas.addEventListener("mousemove", function (event) { return onhover.apply(void 0, pick(event)); });
-    canvas.addEventListener("click", function (event) { return onclick.apply(void 0, pick(event)); });
+    canvas.addEventListener("mouseup", function (event) { return onclick.apply(void 0, pick(event)); });
+    canvas.addEventListener("touchmove", function (event) { return onhover.apply(void 0, pick(event)); });
+    canvas.addEventListener("touchend", function (event) { return onclick.apply(void 0, pick(event)); });
 };
 exports.avgPixel = function (pixels) {
     var r = 0;
@@ -2945,16 +2966,28 @@ var DragItem = (function () {
             m("div", { onmousedown: function (event) {
                     dom_1.devent(event, { stopPropagation: true });
                     _this.onResize("left");
+                }, ontouchstart: function (event) {
+                    dom_1.devent(event, { stopPropagation: true });
+                    _this.onResize("left");
                 }, className: "border left" }),
             m("div", { onmousedown: function (event) {
+                    dom_1.devent(event, { stopPropagation: true });
+                    _this.onResize("right");
+                }, ontouchstart: function (event) {
                     dom_1.devent(event, { stopPropagation: true });
                     _this.onResize("right");
                 }, className: "border right" }),
             m("div", { onmousedown: function (event) {
                     dom_1.devent(event, { stopPropagation: true });
                     _this.onResize("top");
+                }, ontouchstart: function (event) {
+                    dom_1.devent(event, { stopPropagation: true });
+                    _this.onResize("top");
                 }, className: "border top" }),
             m("div", { onmousedown: function (event) {
+                    dom_1.devent(event, { stopPropagation: true });
+                    _this.onResize("bottom");
+                }, ontouchstartF: function (event) {
                     dom_1.devent(event, { stopPropagation: true });
                     _this.onResize("bottom");
                 }, className: "border bottom" }),
@@ -3078,7 +3111,8 @@ var DragItem = (function () {
             }
             dom_1.setStyle(this.placeholder, dom_1.getRectStyle(this.placeholderPosition));
         }
-        this.dragOffset = DragItem.getFixedOffset(this.previousFixedPosition, this.getClientX(event), this.getClientY(event));
+        var _b = dom_1.getClientXY(event), x = _b.x, y = _b.y;
+        this.dragOffset = DragItem.getFixedOffset(this.previousFixedPosition, x, y);
         object_1.exec(this.onitemmovestart, event, this, this.sourceArea, this.targetArea);
         this.dom.classList.add("dragging");
     };
@@ -3114,7 +3148,8 @@ var DragItem = (function () {
             }
         }
         var position = __assign({}, this.previousFixedPosition, this.staticPosition);
-        position = __assign({}, position, this.getCursorOffset(this.getClientX(event), this.getClientY(event)));
+        var _a = dom_1.getClientXY(event), x = _a.x, y = _a.y;
+        position = __assign({}, position, this.getCursorOffset(x, y));
         if (this.preventDrop !== true) {
             position = this.getCalculatedPosition(position);
         }
@@ -3250,20 +3285,9 @@ var DragItem = (function () {
             this.onDragMove(event);
         }
         else if (this.resizeStarted) {
-            this.onResizeMove(this.getClientX(event), this.getClientY(event));
+            var _a = dom_1.getClientXY(event), x = _a.x, y = _a.y;
+            this.onResizeMove(x, y);
         }
-    };
-    DragItem.prototype.getClientX = function (event) {
-        if (event.clientX) {
-            return event.clientX;
-        }
-        return event.touches[0].clientX;
-    };
-    DragItem.prototype.getClientY = function (event) {
-        if (event.clientY) {
-            return event.clientY;
-        }
-        return event.touches[0].clientY;
     };
     return DragItem;
 }());
