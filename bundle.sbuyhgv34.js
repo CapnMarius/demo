@@ -2347,62 +2347,42 @@ exports.ValidationPath = ValidationPath;
 
 "use strict";
 
+var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
-function clone(obj) {
+exports.clone = function (obj) {
     var clonedObj;
     if (typeof obj === "object" && obj !== null) {
         if (Array.isArray(obj)) {
             clonedObj = [];
-            obj.forEach(function (item) { return clonedObj.push(clone(item)); });
+            obj.forEach(function (item) { return clonedObj.push(exports.clone(item)); });
         }
         else {
             clonedObj = {};
-            Object.keys(obj).forEach(function (key) { return clonedObj[key] = clone(obj[key]); });
+            Object.keys(obj).forEach(function (key) { return clonedObj[key] = exports.clone(obj[key]); });
         }
         return clonedObj;
     }
     return obj;
-}
-exports.clone = clone;
-function cleanString() {
+};
+exports.cleanString = function () {
     var classNames = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         classNames[_i] = arguments[_i];
     }
     return classNames.filter(function (x) { return typeof x === "string"; }).map(function (x) { return x.trim(); }).join(" ");
-}
-exports.cleanString = cleanString;
-function isFn(fn) {
-    return typeof fn === "function";
-}
-exports.isFn = isFn;
-function isObj(obj) {
-    return obj !== null && typeof obj === "object";
-}
-exports.isObj = isObj;
-function isPlainObj(obj) {
-    return isObj(obj) && !isArr(obj) && !isFn(obj);
-}
-exports.isPlainObj = isPlainObj;
-function isArr(arr) {
-    return Array.isArray(arr);
-}
-exports.isArr = isArr;
-function exec(fn) {
+};
+exports.isFn = function (fn) { return typeof fn === "function"; };
+exports.isObj = function (obj) { return obj !== null && typeof obj === "object"; };
+exports.isPlainObj = function (obj) { return exports.isObj(obj) && !exports.isArr(obj) && !exports.isFn(obj); };
+exports.isArr = function (arr) { return Array.isArray(arr); };
+exports.exec = function (fn) {
     var args = [];
     for (var _i = 1; _i < arguments.length; _i++) {
         args[_i - 1] = arguments[_i];
     }
-    if (!isFn(fn)) {
-        return;
-    }
-    return fn.apply(this, args);
-}
-exports.exec = exec;
-function mapRange(value, source, target) {
-    return target[0] + (value - source[0]) * (target[1] - target[0]) / (source[1] - source[0]);
-}
-exports.mapRange = mapRange;
+    return exports.isFn(fn) ? fn.apply(_this, args) : undefined;
+};
+exports.mapRange = function (value, source, target) { return target[0] + (value - source[0]) * (target[1] - target[0]) / (source[1] - source[0]); };
 
 
 /***/ }),
@@ -3855,140 +3835,6 @@ exports.default = DependencyInjector;
 
 /***/ }),
 /* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var EventAggregator = (function () {
-    function EventAggregator() {
-        this.subs = {};
-        this._id = 0;
-    }
-    EventAggregator.getInstance = function (type) {
-        if (type === void 0) { type = "main"; }
-        if (EventAggregator.instances[type] === undefined) {
-            EventAggregator.instances[type] = new EventAggregator();
-        }
-        return EventAggregator.instances[type];
-    };
-    EventAggregator.prototype.on = function (event, fn, once) {
-        var _this = this;
-        if (once === void 0) { once = false; }
-        if (Array.isArray(event)) {
-            var subs_1 = event.map(function (e) { return _this.on(e, fn, once); });
-            return {
-                off: function () { return subs_1.forEach(function (sub) { return sub.off(); }); },
-            };
-        }
-        else {
-            return this.addSub(event, fn, once);
-        }
-    };
-    EventAggregator.prototype.once = function (event, fn) {
-        return this.on(event, fn, true);
-    };
-    EventAggregator.prototype.emit = function (event, data) {
-        var _this = this;
-        if (Array.isArray(event)) {
-            event.forEach(function (e) { return _this.emit(e, data); });
-        }
-        else {
-            this.emitSubs(event, data, event);
-            this.emitSubs("*", data, event);
-        }
-        return this;
-    };
-    EventAggregator.prototype.off = function (event, id) {
-        this.subs[event].splice(this.subs[event].findIndex(function (sub) { return sub._id === id; }), 1);
-        return this;
-    };
-    EventAggregator.prototype.addSub = function (event, fn, once) {
-        var _this = this;
-        if (once === void 0) { once = false; }
-        if (this.subs[event] === undefined) {
-            this.subs[event] = [];
-        }
-        var id = this.getNextId();
-        this.subs[event].push({ _id: id, _fn: fn, once: once });
-        return { off: function () { return _this.off(event, id); } };
-    };
-    EventAggregator.prototype.emitSubs = function (event, data, originalEvent) {
-        if (this.subs[event] !== undefined) {
-            for (var i = 0; i < this.subs[event].length; i++) {
-                var sub = this.subs[event][i];
-                if (typeof sub._fn === "function") {
-                    sub._fn(data, originalEvent);
-                    if (sub.once === true) {
-                        this.off(event, sub._id);
-                        i--;
-                    }
-                }
-                else {
-                    this.off(event, sub._id);
-                    i--;
-                }
-            }
-        }
-    };
-    EventAggregator.prototype.getNextId = function () {
-        return this._id++;
-    };
-    EventAggregator.instances = {};
-    return EventAggregator;
-}());
-var debounce = function (fn, threshhold, scope) {
-    if (threshhold === void 0) { threshhold = 100; }
-    if (scope === void 0) { scope = null; }
-    var deferTimer;
-    return function () {
-        var args = arguments;
-        clearTimeout(deferTimer);
-        deferTimer = setTimeout(function () {
-            fn.apply(scope, args);
-        }, threshhold);
-    };
-};
-exports.debounce = debounce;
-var throttle = function (fn, threshhold, scope) {
-    if (threshhold === void 0) { threshhold = 100; }
-    if (scope === void 0) { scope = null; }
-    var last;
-    var deferTimer;
-    return function () {
-        var now = Date.now();
-        var args = arguments;
-        if (last && now < last + threshhold) {
-            clearTimeout(deferTimer);
-            deferTimer = setTimeout(function () {
-                last = now;
-                fn.apply(scope, args);
-            }, threshhold);
-        }
-        else {
-            last = now;
-            fn.apply(scope, args);
-        }
-    };
-};
-exports.throttle = throttle;
-exports.default = EventAggregator;
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.IMAGE = "image";
-exports.TEXT = "text";
-exports.SHAPE = "shape";
-
-
-/***/ }),
-/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4238,6 +4084,140 @@ function internalError(message) {
 
 
 /***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventAggregator = (function () {
+    function EventAggregator() {
+        this.subs = {};
+        this._id = 0;
+    }
+    EventAggregator.getInstance = function (type) {
+        if (type === void 0) { type = "main"; }
+        if (EventAggregator.instances[type] === undefined) {
+            EventAggregator.instances[type] = new EventAggregator();
+        }
+        return EventAggregator.instances[type];
+    };
+    EventAggregator.prototype.on = function (event, fn, once) {
+        var _this = this;
+        if (once === void 0) { once = false; }
+        if (Array.isArray(event)) {
+            var subs_1 = event.map(function (e) { return _this.on(e, fn, once); });
+            return {
+                off: function () { return subs_1.forEach(function (sub) { return sub.off(); }); },
+            };
+        }
+        else {
+            return this.addSub(event, fn, once);
+        }
+    };
+    EventAggregator.prototype.once = function (event, fn) {
+        return this.on(event, fn, true);
+    };
+    EventAggregator.prototype.emit = function (event, data) {
+        var _this = this;
+        if (Array.isArray(event)) {
+            event.forEach(function (e) { return _this.emit(e, data); });
+        }
+        else {
+            this.emitSubs(event, data, event);
+            this.emitSubs("*", data, event);
+        }
+        return this;
+    };
+    EventAggregator.prototype.off = function (event, id) {
+        this.subs[event].splice(this.subs[event].findIndex(function (sub) { return sub._id === id; }), 1);
+        return this;
+    };
+    EventAggregator.prototype.addSub = function (event, fn, once) {
+        var _this = this;
+        if (once === void 0) { once = false; }
+        if (this.subs[event] === undefined) {
+            this.subs[event] = [];
+        }
+        var id = this.getNextId();
+        this.subs[event].push({ _id: id, _fn: fn, once: once });
+        return { off: function () { return _this.off(event, id); } };
+    };
+    EventAggregator.prototype.emitSubs = function (event, data, originalEvent) {
+        if (this.subs[event] !== undefined) {
+            for (var i = 0; i < this.subs[event].length; i++) {
+                var sub = this.subs[event][i];
+                if (typeof sub._fn === "function") {
+                    sub._fn(data, originalEvent);
+                    if (sub.once === true) {
+                        this.off(event, sub._id);
+                        i--;
+                    }
+                }
+                else {
+                    this.off(event, sub._id);
+                    i--;
+                }
+            }
+        }
+    };
+    EventAggregator.prototype.getNextId = function () {
+        return this._id++;
+    };
+    EventAggregator.instances = {};
+    return EventAggregator;
+}());
+var debounce = function (fn, threshhold, scope) {
+    if (threshhold === void 0) { threshhold = 100; }
+    if (scope === void 0) { scope = null; }
+    var deferTimer;
+    return function () {
+        var args = arguments;
+        clearTimeout(deferTimer);
+        deferTimer = setTimeout(function () {
+            fn.apply(scope, args);
+        }, threshhold);
+    };
+};
+exports.debounce = debounce;
+var throttle = function (fn, threshhold, scope) {
+    if (threshhold === void 0) { threshhold = 100; }
+    if (scope === void 0) { scope = null; }
+    var last;
+    var deferTimer;
+    return function () {
+        var now = Date.now();
+        var args = arguments;
+        if (last && now < last + threshhold) {
+            clearTimeout(deferTimer);
+            deferTimer = setTimeout(function () {
+                last = now;
+                fn.apply(scope, args);
+            }, threshhold);
+        }
+        else {
+            last = now;
+            fn.apply(scope, args);
+        }
+    };
+};
+exports.throttle = throttle;
+exports.default = EventAggregator;
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.IMAGE = "image";
+exports.TEXT = "text";
+exports.SHAPE = "shape";
+
+
+/***/ }),
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4292,24 +4272,18 @@ exports.getScale = function (original, target, maximize) {
         return maxHeightScale > maxWidthScale ? maxWidthScale : maxHeightScale;
     }
 };
-exports.setScale = function (obj, scale) {
-    return Object.keys(obj).reduce(function (scaled, key) {
-        scaled[key] = obj[key] * scale;
-        return scaled;
-    }, {});
-};
-exports.round = function (obj) {
-    return Object.keys(obj).reduce(function (rounded, key) {
-        rounded[key] = Math.round(obj[key]);
-        return rounded;
-    }, {});
-};
-exports.rectIsEqual = function (prev, curr) {
-    return prev.top === curr.top &&
-        prev.left === curr.left &&
-        prev.width === curr.width &&
-        prev.height === curr.height;
-};
+exports.setScale = function (obj, scale) { return Object.keys(obj).reduce(function (scaled, key) {
+    scaled[key] = obj[key] * scale;
+    return scaled;
+}, {}); };
+exports.round = function (obj) { return Object.keys(obj).reduce(function (rounded, key) {
+    rounded[key] = Math.round(obj[key]);
+    return rounded;
+}, {}); };
+exports.rectIsEqual = function (prev, curr) { return prev.top === curr.top &&
+    prev.left === curr.left &&
+    prev.width === curr.width &&
+    prev.height === curr.height; };
 exports.getRect = function (obj) {
     var rect = {};
     if (obj["left"] !== undefined) {
@@ -5741,7 +5715,7 @@ PriorityIndex_1.setNodeFromJSON(nodeFromJSON);
 /* unused harmony export base64Bytes_ */
 /* unused harmony export dataURLBytes_ */
 /* unused harmony export dataURLContentType_ */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(13);
 /**
  * Copyright 2017 Google Inc.
  *
@@ -6028,7 +6002,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var eventaggregator_1 = __webpack_require__(13);
+var eventaggregator_1 = __webpack_require__(14);
 var m = __webpack_require__(2);
 var dom_1 = __webpack_require__(7);
 var logger_1 = __webpack_require__(18);
@@ -6036,15 +6010,15 @@ var object_1 = __webpack_require__(4);
 var Area_1 = __webpack_require__(57);
 __webpack_require__(232);
 var domEA = eventaggregator_1.default.getInstance("dom");
-var mouseEventDelay = 200;
+var mouseEventDelay = 250;
 var DragItem = (function () {
     function DragItem() {
         this.staticPosition = {};
         this.initialPosition = {};
         this.position = {};
         this.constrain = { minWidth: 20, minHeight: 20 };
-        this.dragStarted = false;
-        this.resizeStarted = false;
+        this.dragStarted = 0;
+        this.resizeStarted = 0;
         this.events = [];
         this.data = {};
         this.type = "main";
@@ -6060,7 +6034,7 @@ var DragItem = (function () {
     };
     DragItem.prototype.updatePosition = function (position) {
         this.setPosition(position);
-        if (this.dragStarted || this.resizeStarted) {
+        if (this.dragStarted > 0 || this.resizeStarted > 0) {
             this.setDOMFixedPosition();
         }
         else {
@@ -6069,7 +6043,7 @@ var DragItem = (function () {
     };
     DragItem.prototype.setStaticPosition = function (position) {
         this.staticPosition = position;
-        if (this.dragStarted || this.resizeStarted) {
+        if (this.dragStarted > 0 || this.resizeStarted > 0) {
             this.setDOMFixedPosition(__assign({}, this.position, this.staticPosition));
         }
     };
@@ -6089,32 +6063,22 @@ var DragItem = (function () {
         }
         return position;
     };
-    DragItem.withinArea = function (position, area, margin) {
-        if (margin) {
-            if (position.left < area.left - margin) {
-                return position;
-            }
-            if (position.top < area.top - margin) {
-                return position;
-            }
-            if (position.left + position.width > area.left + area.width + margin) {
-                return position;
-            }
-            if (position.top + position.height > area.top + area.height + margin) {
-                return position;
-            }
-        }
-        if (position.left < area.left) {
-            position.left = area.left;
-        }
-        if (position.top < area.top) {
+    DragItem.withinArea = function (position, area) {
+        var positionBottom = position.top + position.height;
+        var positionRight = position.left + position.width;
+        var areaBottom = area.top + area.height;
+        var areaRight = area.left + area.width;
+        if (position.top < area.top && position.top > area.top - (position.height + 1)) {
             position.top = area.top;
         }
-        if (position.left + position.width > area.left + area.width) {
-            position.left = area.left + area.width - position.width;
+        else if (positionBottom > areaBottom && positionBottom < areaBottom + (position.height + 1)) {
+            position.top = areaBottom - position.height;
         }
-        if (position.top + position.height > area.top + area.height) {
-            position.top = area.top + area.height - position.height;
+        if (position.left < area.left && position.left > area.left - (position.width + 1)) {
+            position.left = area.left;
+        }
+        else if (positionRight > areaRight && positionRight < areaRight + (position.width + 1)) {
+            position.left = areaRight - position.width;
         }
         return position;
     };
@@ -6149,8 +6113,8 @@ var DragItem = (function () {
         }
         this.staticPosition = {};
         this.resizeSide = undefined;
-        this.dragStarted = false;
-        this.resizeStarted = false;
+        this.dragStarted = 0;
+        this.resizeStarted = 0;
         this.targetArea = undefined;
         this.pressStamp = 0;
         this.dom.classList.remove("within-area", "dragging", "resizing");
@@ -6368,7 +6332,7 @@ var DragItem = (function () {
         }
         if (constrain !== undefined) {
             var areaRect = this.targetArea.getBoundingClientRect();
-            position = __assign({}, position, DragItem.withinArea(position, areaRect, typeof constrain === "object" ? constrain.margin : undefined));
+            position = __assign({}, position, DragItem.withinArea(position, areaRect));
         }
         return position;
     };
@@ -6378,7 +6342,7 @@ var DragItem = (function () {
         }
     };
     DragItem.prototype.onDrag = function (event) {
-        this.dragStarted = true;
+        this.dragStarted = Date.now();
         this.setInitialPosition();
         this.previousFixedPosition = this.getBoundingClientRect();
         this.sourceArea = this.getSourceArea();
@@ -6399,9 +6363,9 @@ var DragItem = (function () {
         this.lastTargetArea = this.targetArea;
         this.targetArea = this.getTargetArea();
         var disable = function (area) {
+            _this.preventDrop = true;
             area.setDisabled(true);
             area.setFocus(false);
-            _this.preventDrop = true;
             _this.dom.classList.remove("within-area");
         };
         var enable = function (area) {
@@ -6428,9 +6392,7 @@ var DragItem = (function () {
         var position = __assign({}, this.previousFixedPosition, this.staticPosition);
         var _a = dom_1.getClientXY(event), x = _a.x, y = _a.y;
         position = __assign({}, position, this.getCursorOffset(x, y));
-        if (this.preventDrop !== true) {
-            position = this.getCalculatedPosition(position);
-        }
+        position = this.getCalculatedPosition(position);
         this.setDOMFixedPosition(position);
         if (this.placeholder) {
             dom_1.setStyle(this.placeholder, { display: "" });
@@ -6438,7 +6400,7 @@ var DragItem = (function () {
         object_1.exec(this.onitemmove, event, this, this.sourceArea, this.targetArea);
     };
     DragItem.prototype.onDragUp = function (event) {
-        this.dragStarted = false;
+        this.dragStarted = 0;
         Area_1.getAreas(this.type).forEach(function (area) {
             area.setFocus(false);
             area.setDisabled(false);
@@ -6477,7 +6439,7 @@ var DragItem = (function () {
         this.dom.classList.remove("dragging", "within-area");
     };
     DragItem.prototype.onResize = function (side) {
-        this.resizeStarted = true;
+        this.resizeStarted = Date.now();
         this.previousFixedPosition = this.getBoundingClientRect();
         this.sourceArea = this.targetArea = this.getSourceArea();
         this.resizeSide = side;
@@ -6533,25 +6495,25 @@ var DragItem = (function () {
         object_1.exec(this.onitemresize, event, this, this.sourceArea);
     };
     DragItem.prototype.onResizeUp = function (event) {
-        this.resizeStarted = false;
+        this.resizeStarted = 0;
         var position = this.getBoundingClientRect();
         this.setPosition(__assign({}, position, (this.targetArea ? this.getRelativePoints(this.targetArea) : {})));
         object_1.exec(this.onitemresizeend, event, this, this.sourceArea);
         this.dom.classList.remove("resizing");
     };
     DragItem.prototype.onMouseUp = function (event) {
-        if (!this.dragStarted && !this.resizeStarted) {
+        if (this.dragStarted < 1 && this.resizeStarted < 1) {
             return;
         }
         if (Date.now() < this.pressStamp + mouseEventDelay) {
-            this.dragStarted = false;
-            this.resizeStarted = false;
+            this.dragStarted = 0;
+            this.resizeStarted = 0;
             return;
         }
-        if (this.dragStarted === true) {
+        if (this.dragStarted !== 0) {
             this.onDragUp(event);
         }
-        else if (this.resizeStarted === true) {
+        else if (this.resizeStarted !== 0) {
             this.onResizeUp(event);
         }
     };
@@ -6559,10 +6521,10 @@ var DragItem = (function () {
         if (Date.now() < this.pressStamp + mouseEventDelay) {
             return;
         }
-        if (this.dragStarted) {
+        if (this.dragStarted > 0 && Date.now() - this.dragStarted > mouseEventDelay) {
             this.onDragMove(event);
         }
-        else if (this.resizeStarted) {
+        else if (this.resizeStarted > 0 && Date.now() - this.resizeStarted > mouseEventDelay) {
             var _a = dom_1.getClientXY(event), x = _a.x, y = _a.y;
             this.onResizeMove(x, y);
         }
@@ -8486,7 +8448,7 @@ var minSafeInteger = -9007199254740991;
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Location; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(13);
 /**
  * Copyright 2017 Google Inc.
  *
@@ -10235,7 +10197,7 @@ exports.RepoManager = RepoManager;
 /* harmony export (immutable) */ __webpack_exports__["c"] = nonNegativeNumberSpec;
 /* harmony export (immutable) */ __webpack_exports__["a"] = looseObjectSpec;
 /* harmony export (immutable) */ __webpack_exports__["d"] = nullFunctionSpec;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__metadata__ = __webpack_require__(53);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__type__ = __webpack_require__(11);
 /**
@@ -10750,22 +10712,22 @@ var DragArea = (function () {
         if (options === void 0) { options = {}; }
         var areaRect = this.getBoundingClientRect();
         if (options.complete) {
-            return (itemRect.left > areaRect.left &&
-                itemRect.left + itemRect.width < areaRect.left + areaRect.width &&
-                itemRect.top > areaRect.top &&
-                itemRect.top + itemRect.height < areaRect.top + areaRect.height);
+            return (itemRect.left >= areaRect.left &&
+                itemRect.left + itemRect.width <= areaRect.left + areaRect.width &&
+                itemRect.top >= areaRect.top &&
+                itemRect.top + itemRect.height <= areaRect.top + areaRect.height);
         }
         else if (options.margin) {
-            return (itemRect.left + options.margin > areaRect.left &&
-                itemRect.left + itemRect.width - options.margin < areaRect.left + areaRect.width &&
-                itemRect.top + options.margin > areaRect.top &&
-                itemRect.top + itemRect.height - options.margin < areaRect.top + areaRect.height);
+            return (itemRect.left + options.margin >= areaRect.left &&
+                itemRect.left + itemRect.width - options.margin <= areaRect.left + areaRect.width &&
+                itemRect.top + options.margin >= areaRect.top &&
+                itemRect.top + itemRect.height - options.margin <= areaRect.top + areaRect.height);
         }
         else {
-            return (itemRect.left + itemRect.width > areaRect.left &&
-                itemRect.left < areaRect.left + areaRect.width &&
-                itemRect.top + itemRect.height > areaRect.top &&
-                itemRect.top < areaRect.top + areaRect.height);
+            return (itemRect.left + itemRect.width >= areaRect.left &&
+                itemRect.left <= areaRect.left + areaRect.width &&
+                itemRect.top + itemRect.height >= areaRect.top &&
+                itemRect.top <= areaRect.top + areaRect.height);
         }
     };
     DragArea.prototype.getConstraints = function () {
@@ -10987,36 +10949,21 @@ var Firebase = __webpack_require__(120);
 var object_1 = __webpack_require__(4);
 var deps = easydeps_1.default.getInstance();
 var firebase;
-exports.push = function (ref, data, database) {
-    if (database === void 0) { database = firebase.database(); }
-    var dbRef = database.ref(ref);
-    var dbNew = dbRef.push(data);
-    return dbNew;
-};
-exports.transaction = function (ref, init, mutate, after, database) {
-    if (database === void 0) { database = firebase.database(); }
-    return __awaiter(_this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2, new Promise(function (resolve, reject) {
-                    var dbRef = database.ref(ref);
-                    database.ref(ref).transaction(function (old) { return old === null ? init() : mutate(old); }, function (err, committed, snapshot) {
-                        object_1.exec(after, err, committed, snapshot);
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve(snapshot);
-                        }
-                    }, true);
-                })];
-        });
+exports.push = function (ref, data) { return firebase.database().ref(ref).push(data); };
+exports.transaction = function (ref, init, mutate, after) { return __awaiter(_this, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        return [2, new Promise(function (resolve, reject) { return firebase.database().ref(ref).transaction(function (old) { return old === null ? object_1.exec(init) : object_1.exec(mutate, old); }, function (err, committed, snapshot) {
+                object_1.exec(after, err, committed, snapshot);
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(snapshot);
+                }
+            }, true); })];
     });
-};
-exports.get = function (ref, onchange, database) {
-    if (database === void 0) { database = firebase.database(); }
-    var dbRef = database.ref(ref);
-    database.ref(ref).on("value", onchange);
-};
+}); };
+exports.get = function (ref, onchange) { return firebase.database().ref(ref).on("value", onchange); };
 exports.default = function (firebaseConfig) {
     firebase = Firebase.initializeApp(firebaseConfig);
     return firebase;
@@ -17117,7 +17064,7 @@ var ErrorCode;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Reference; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__implementation_args__ = __webpack_require__(52);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__implementation_blob__ = __webpack_require__(97);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__implementation_error__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__implementation_error__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__implementation_location__ = __webpack_require__(42);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__implementation_metadata__ = __webpack_require__(53);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__implementation_object__ = __webpack_require__(24);
@@ -17603,7 +17550,7 @@ var FbsBlob = /** @class */ (function () {
 /* harmony export (immutable) */ __webpack_exports__["b"] = continueResumableUpload;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__array__ = __webpack_require__(55);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__blob__ = __webpack_require__(97);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__error__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__error__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__metadata__ = __webpack_require__(53);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__object__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__requestinfo__ = __webpack_require__(189);
@@ -18262,7 +18209,7 @@ productEA.on("submit", function (event) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var detect_browser_1 = __webpack_require__(111);
 var easydeps_1 = __webpack_require__(12);
-var eventaggregator_1 = __webpack_require__(13);
+var eventaggregator_1 = __webpack_require__(14);
 var m = __webpack_require__(2);
 var productManager_1 = __webpack_require__(114);
 var dom_1 = __webpack_require__(7);
@@ -18772,8 +18719,8 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var clone = __webpack_require__(115);
-var eventaggregator_1 = __webpack_require__(13);
-var enums_1 = __webpack_require__(14);
+var eventaggregator_1 = __webpack_require__(14);
+var enums_1 = __webpack_require__(15);
 var helpers_1 = __webpack_require__(16);
 var productEA = eventaggregator_1.default.getInstance("product");
 var ProductManager = (function () {
@@ -18790,12 +18737,6 @@ var ProductManager = (function () {
             this.currentLayoutId = pp.layout.id;
         }
     }
-    ProductManager.prototype.loadProductPartLayout = function (productPartId, layout) {
-        var currentProductPart = this.getProductPartById(productPartId);
-        this.setCurrentLayout(layout.id);
-        currentProductPart.layout = clone(layout);
-        this.changed();
-    };
     ProductManager.prototype.getProductParts = function () {
         return clone(this.productParts, false);
     };
@@ -18984,6 +18925,46 @@ var ProductManager = (function () {
             result: result.result,
             definition: { id: this.id, productPart: productPartDefinition },
         };
+    };
+    ProductManager.prototype.exportDefinition = function () {
+        return this.productParts.map(function (pp) { return ({
+            id: pp.id,
+            layoutId: pp.layout.id,
+            holders: pp.layout.holders.map(function (h) { return clone(({
+                id: h.id,
+                content: (function () {
+                    var c = clone(h.content, false);
+                    if (c && c.originalValue) {
+                        c.originalValue = undefined;
+                    }
+                    return c;
+                })(),
+                position: h.position,
+                type: h.type,
+            }), false); }),
+        }); });
+    };
+    ProductManager.prototype.importDefinition = function (definition) {
+        var _this = this;
+        definition.forEach(function (pp) {
+            var epp = _this.productParts.find(function (x) { return x.id === pp.id; });
+            if (epp === undefined) {
+                throw new Error("ProductPart with id " + pp.id + " not found. Cannot import the definition");
+            }
+            _this.currentLayoutId = pp.layoutId;
+            epp.layout = clone(_this.getThisLayout(pp.layoutId), false);
+            pp.holders.forEach(function (h) {
+                var eh = epp.layout.holders.find(function (x) { return x.id === h.id; });
+                if (eh === undefined) {
+                    epp.layout.holders.push(h);
+                }
+                else {
+                    Object.assign(eh, h);
+                }
+            });
+        });
+        this.updateSelected();
+        this.changed();
     };
     ProductManager.prototype.scale = function (position, scale) {
         if (scale === void 0) { scale = 1 / this.previewScale; }
@@ -31508,7 +31489,7 @@ var XhrIoPool = /** @class */ (function () {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return NetworkXhrIo; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__object__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__promise_external__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__type__ = __webpack_require__(11);
@@ -31819,7 +31800,7 @@ var RequestInfo = /** @class */ (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__implementation_args__ = __webpack_require__(52);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__implementation_array__ = __webpack_require__(55);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__implementation_async__ = __webpack_require__(193);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__implementation_error__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__implementation_error__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__implementation_promise_external__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__implementation_requests__ = __webpack_require__(98);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__implementation_type__ = __webpack_require__(11);
@@ -32691,7 +32672,7 @@ var ServiceInternals = /** @class */ (function () {
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AuthWrapper; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__constants__ = __webpack_require__(41);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__error__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__error__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__failrequest__ = __webpack_require__(196);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__location__ = __webpack_require__(42);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__promise_external__ = __webpack_require__(21);
@@ -32930,7 +32911,7 @@ var RequestMap = /** @class */ (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__firebase_app__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__array__ = __webpack_require__(55);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__backoff__ = __webpack_require__(199);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__error__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__error__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__object__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__promise_external__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__type__ = __webpack_require__(11);
@@ -33328,9 +33309,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var easydeps_1 = __webpack_require__(12);
-var eventaggregator_1 = __webpack_require__(13);
 var m = __webpack_require__(2);
-var enums_1 = __webpack_require__(14);
 var iconfont_1 = __webpack_require__(99);
 var LocalStorage = __webpack_require__(100);
 __webpack_require__(211);
@@ -33347,21 +33326,17 @@ __webpack_require__(273);
 iconfont_1.setIcons("Material-Design-Iconic-Font", ["f101", "f409"]);
 var load = function () {
     easydeps_1.default.getInstance().invokeFrom(["productManager"], function (pm) {
-        var pp = pm.getProductPart();
-        var layout = LocalStorage.get("definition_" + pp.id);
-        var images = layout.holders
-            .map(function (holder) { return (holder.content && holder.content.type === enums_1.IMAGE && holder.content.originalValue && holder.content.thumb) ?
-            ({ name: holder.content.thumb.slice(-8), thumb: holder.content.thumb, src: holder.content.originalValue })
-            : false; })
-            .filter(function (content) { return content !== false; });
-        eventaggregator_1.default.getInstance("images").emit("add", images);
-        pm.loadProductPartLayout(pp.id, layout);
+        var pps = LocalStorage.get("definition");
+        if (pps) {
+            pm.importDefinition(pps);
+        }
     });
 };
 var store = function () {
     easydeps_1.default.getInstance().invokeFrom(["productManager"], function (pm) {
-        var pp = pm.getProductPart();
-        LocalStorage.set("definition_" + pp.id, pp.layout);
+        var pps = pm.exportDefinition();
+        console.log(pps);
+        LocalStorage.set("definition", pps);
     });
 };
 var submit = function (scale, individual, download) {
@@ -35663,7 +35638,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var m = __webpack_require__(2);
-var enums_1 = __webpack_require__(14);
+var enums_1 = __webpack_require__(15);
 var HolderContent = (function () {
     function HolderContent() {
     }
@@ -35842,7 +35817,7 @@ var Input_1 = __webpack_require__(103);
 var Select_1 = __webpack_require__(225);
 var ImageBackgroundRemover_1 = __webpack_require__(226);
 var ImageEditor_1 = __webpack_require__(231);
-var enums_1 = __webpack_require__(14);
+var enums_1 = __webpack_require__(15);
 var dom_1 = __webpack_require__(7);
 var helpers_1 = __webpack_require__(16);
 var object_1 = __webpack_require__(4);
@@ -36247,7 +36222,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var eventaggregator_1 = __webpack_require__(13);
+var eventaggregator_1 = __webpack_require__(14);
 var m = __webpack_require__(2);
 var image_1 = __webpack_require__(26);
 var object_1 = __webpack_require__(4);
@@ -36568,7 +36543,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var eventaggregator_1 = __webpack_require__(13);
+var eventaggregator_1 = __webpack_require__(14);
 var m = __webpack_require__(2);
 var dom_1 = __webpack_require__(7);
 var helpers_1 = __webpack_require__(16);
@@ -37125,7 +37100,7 @@ exports.default = HolderDrawer;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var eventaggregator_1 = __webpack_require__(13);
+var eventaggregator_1 = __webpack_require__(14);
 var Controller = (function () {
     function Controller() {
         this.events = [];
@@ -37416,14 +37391,14 @@ exports.push([module.i, ".component--HolderDrawer {\n  height: auto;\n  backgrou
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var eventaggregator_1 = __webpack_require__(13);
+var eventaggregator_1 = __webpack_require__(14);
 var m = __webpack_require__(2);
 var index_1 = __webpack_require__(32);
 var Checkbox_1 = __webpack_require__(102);
 var index_2 = __webpack_require__(252);
 var ImageUploadUrl_1 = __webpack_require__(253);
 var index_3 = __webpack_require__(58);
-var enums_1 = __webpack_require__(14);
+var enums_1 = __webpack_require__(15);
 var LocalStorage = __webpack_require__(100);
 var injectTransition_1 = __webpack_require__(43);
 __webpack_require__(255);
@@ -37920,7 +37895,7 @@ var object_1 = __webpack_require__(4);
 var iconText = __webpack_require__(106);
 var iconImage = __webpack_require__(107);
 var iconShape = __webpack_require__(108);
-var index_1 = __webpack_require__(14);
+var index_1 = __webpack_require__(15);
 __webpack_require__(259);
 var getPlaceholderContentIcon = function (holder) {
     var icons = [];
@@ -38094,7 +38069,7 @@ exports.push([module.i, ".component--LayoutDrawer {\n  height: auto;\n  backgrou
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var m = __webpack_require__(2);
-var index_1 = __webpack_require__(14);
+var index_1 = __webpack_require__(15);
 var injectTransition_1 = __webpack_require__(43);
 var iconText = __webpack_require__(106);
 var iconImage = __webpack_require__(107);
@@ -38173,7 +38148,7 @@ exports.push([module.i, ".component--OtherDrawer {\n  height: auto;\n  backgroun
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var eventaggregator_1 = __webpack_require__(13);
+var eventaggregator_1 = __webpack_require__(14);
 var m = __webpack_require__(2);
 var Area_1 = __webpack_require__(57);
 var Item_1 = __webpack_require__(32);
@@ -38247,7 +38222,7 @@ exports.default = ProductPreview;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var easydeps_1 = __webpack_require__(12);
-var enums_1 = __webpack_require__(14);
+var enums_1 = __webpack_require__(15);
 var logger_1 = __webpack_require__(18);
 var ProductPreviewController = (function () {
     function ProductPreviewController() {
@@ -38284,19 +38259,24 @@ var ProductPreviewController = (function () {
     ProductPreviewController.prototype.onHolderHover = function (item, sourceArea, targetArea, holder, initial) {
         var itemRect = item.getBoundingClientRect();
         var areaRect = targetArea.getBoundingClientRect();
-        if (targetArea === sourceArea && !targetArea.withinArea(itemRect, this.getDragAreaConstrainMargin())) {
-            return false;
-        }
         var content = item.getData("content");
         if (holder === undefined) {
-            if (initial && this.layout) {
-                var position = item.getPosition();
-                var targetHeight = this.layout.position.height;
-                item.setStaticPosition({ height: targetHeight, width: position.width * (targetHeight / position.height) });
+            if (!this.layout) {
+                return false;
             }
-            return true;
+            var position = item.getPosition();
+            var targetHeight = this.layout.position.height;
+            item.setStaticPosition({ height: targetHeight, width: position.width * (targetHeight / position.height) });
         }
-        return (Array.isArray(holder.type) && holder.type.indexOf(content.type) !== -1);
+        else if (content.type === enums_1.IMAGE && holder.type.indexOf(content.type) !== -1) {
+            var position = item.getPosition();
+            item.setStaticPosition({ height: holder.position.height, width: holder.position.width });
+        }
+        if (itemRect.left < areaRect.left || itemRect.left + itemRect.width > areaRect.left + areaRect.width ||
+            itemRect.top < areaRect.top || itemRect.top + itemRect.height > areaRect.top + areaRect.height) {
+            return false;
+        }
+        return true;
     };
     ProductPreviewController.prototype.onHolderContentDrop = function (item, holder) {
         var content = { type: enums_1.TEXT };
@@ -38499,7 +38479,7 @@ exports.push([module.i, "body {\n  margin: 0; }\n\n* {\n  -webkit-user-select: n
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var index_1 = __webpack_require__(14);
+var index_1 = __webpack_require__(15);
 var object_1 = __webpack_require__(4);
 var layouts0 = {
     id: "0",
@@ -38980,10 +38960,11 @@ exports.registerBrowser = function () {
     var browser = deps.request(["browser"])[0];
     if (!browserKey) {
         firebase_1.transaction("/stat/browser/" + browser.name, function () {
-            return ({ count: 0, versions: (_a = {}, _a[browser.version.replace(/\./g, "_")] = 0, _a) });
+            return ({ count: 1, versions: (_a = {}, _a[browser.version.replace(/\./g, "_")] = 1, _a) });
             var _a;
         }, function (data) {
             data.count++;
+            data.versions[browser.version.replace(/\./g, "_")]++;
             return data;
         }, function (err, committed, snapshot) {
             Store.set("stat-browser-key", snapshot.key);
@@ -38991,46 +38972,22 @@ exports.registerBrowser = function () {
                 logger_1.default(err);
             }
         });
-        return;
     }
 };
 exports.registerCheckin = function () {
     var browserKey = Store.get("stat-checkin-key");
     var browser = deps.request(["browser"])[0];
-    getCheckinData();
-    firebase_1.transaction("/stat/checkin/" + browserKey + "/", function () { return (__assign({}, browser, { visits: 0 })); }, function (data) {
+    firebase_1.transaction("/stat/checkin/" + browserKey + "/", function () { return (__assign({}, browser, { visits: 1 })); }, function (data) {
         data.visits++;
         deps.register("browserVisits", data.visits);
         return data;
     }, function (err, committed, snapshot) {
+        Store.set("stat-checkin-key", snapshot.key);
         if (err) {
             logger_1.default(err);
         }
     });
 };
-var getCheckinData = function () {
-    var browser = deps.request(["browser"])[0];
-    firebase_1.get("/stat/browser", function (data) {
-        var browsers = data.val();
-        var totalBrowserCount = Object.keys(browsers).reduce(function (total, b) { return total + browsers[b].count; }, 0);
-        var thisBrowserCount = browsers[browser.name] ? browsers[browser.name].count : 0;
-        deps.register("browserPercentage", thisBrowserCount / totalBrowserCount * 100);
-    });
-};
-exports.getBrowserStats = deps.resolveRawFrom(["browser", "browserVisits", "browserPercentage"], function (br, bvr, bpr, handle) {
-    var b = br.get();
-    var bv = bvr.get() || 0;
-    var bp = parseInt(bpr.get(), 10) || 0;
-    handle(b, bv, bp);
-    bvr.onchange(function (value) {
-        bv = value;
-        handle(b, bv, bp);
-    });
-    bpr.onchange(function (value) {
-        bp = parseInt(value, 10);
-        handle(b, bv, bp);
-    });
-});
 
 
 /***/ })
