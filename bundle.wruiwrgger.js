@@ -6019,6 +6019,8 @@ var DragItem = (function () {
         this.constrain = { minWidth: 20, minHeight: 20 };
         this.dragStarted = 0;
         this.resizeStarted = 0;
+        this.dragMoved = false;
+        this.resizeMoved = false;
         this.events = [];
         this.data = {};
         this.type = "main";
@@ -6343,6 +6345,7 @@ var DragItem = (function () {
     };
     DragItem.prototype.onDrag = function (event) {
         this.dragStarted = Date.now();
+        this.dragMoved = false;
         this.setInitialPosition();
         this.previousFixedPosition = this.getBoundingClientRect();
         this.sourceArea = this.getSourceArea();
@@ -6362,6 +6365,7 @@ var DragItem = (function () {
         var _this = this;
         this.lastTargetArea = this.targetArea;
         this.targetArea = this.getTargetArea();
+        this.dragMoved = true;
         var disable = function (area) {
             _this.preventDrop = true;
             area.setDisabled(true);
@@ -6401,6 +6405,9 @@ var DragItem = (function () {
     };
     DragItem.prototype.onDragUp = function (event) {
         this.dragStarted = 0;
+        if (this.dragMoved === false) {
+            return;
+        }
         Area_1.getAreas(this.type).forEach(function (area) {
             area.setFocus(false);
             area.setDisabled(false);
@@ -6440,6 +6447,7 @@ var DragItem = (function () {
     };
     DragItem.prototype.onResize = function (side) {
         this.resizeStarted = Date.now();
+        this.resizeMoved = false;
         this.previousFixedPosition = this.getBoundingClientRect();
         this.sourceArea = this.targetArea = this.getSourceArea();
         this.resizeSide = side;
@@ -6450,6 +6458,7 @@ var DragItem = (function () {
         if (!this.sourceArea) {
             return;
         }
+        this.resizeMoved = true;
         var areaRect = this.sourceArea.getBoundingClientRect();
         var position = __assign({}, this.position);
         var diff = { left: 0, top: 0, right: 0, bottom: 0 };
@@ -6496,6 +6505,9 @@ var DragItem = (function () {
     };
     DragItem.prototype.onResizeUp = function (event) {
         this.resizeStarted = 0;
+        if (this.resizeMoved === false) {
+            return;
+        }
         var position = this.getBoundingClientRect();
         this.setPosition(__assign({}, position, (this.targetArea ? this.getRelativePoints(this.targetArea) : {})));
         object_1.exec(this.onitemresizeend, event, this, this.sourceArea);
