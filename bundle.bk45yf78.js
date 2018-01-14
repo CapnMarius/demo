@@ -2846,7 +2846,7 @@ function updateLink (link, options, obj) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var helpers_1 = __webpack_require__(16);
+var helpers_1 = __webpack_require__(13);
 exports.devent = function (event, options) {
     if (options === void 0) { options = { redraw: false, passive: false, preventDefault: true, stopPropagation: false }; }
     if (!options.redraw) {
@@ -3835,6 +3835,156 @@ exports.default = DependencyInjector;
 
 /***/ }),
 /* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.rectKeys = ["left", "top", "width", "height"];
+exports.rectConstrainKeys = ["minWidth", "minHeight", "maxWidth", "maxHeight"];
+exports.getScale = function (original, target, maximize) {
+    var maxWidthScale = target.width / original.width;
+    var maxHeightScale = target.height / original.height;
+    if (maximize) {
+        return maxHeightScale < maxWidthScale ? maxWidthScale : maxHeightScale;
+    }
+    else {
+        return maxHeightScale > maxWidthScale ? maxWidthScale : maxHeightScale;
+    }
+};
+exports.setScale = function (obj, scale) { return Object.keys(obj).reduce(function (scaled, key) {
+    scaled[key] = obj[key] * scale;
+    return scaled;
+}, {}); };
+exports.round = function (obj) { return Object.keys(obj).reduce(function (rounded, key) {
+    rounded[key] = Math.round(obj[key]);
+    return rounded;
+}, {}); };
+exports.rectIsEqual = function (prev, curr) { return prev.top === curr.top &&
+    prev.left === curr.left &&
+    prev.width === curr.width &&
+    prev.height === curr.height; };
+exports.getRect = function (obj) {
+    var rect = {};
+    if (obj["left"] !== undefined) {
+        rect.left = obj["left"];
+    }
+    if (obj["top"] !== undefined) {
+        rect.top = obj["top"];
+    }
+    if (obj["width"] !== undefined) {
+        rect.width = obj["width"];
+    }
+    if (obj["height"] !== undefined) {
+        rect.height = obj["height"];
+    }
+    return rect;
+};
+exports.getConstrainedRect = function (rect, constrain) {
+    if (constrain.minTop && rect.top < constrain.minTop) {
+        rect.top = constrain.minTop;
+    }
+    if (constrain.minLeft && rect.left < constrain.minLeft) {
+        rect.left = constrain.minLeft;
+    }
+    if (constrain.minWidth && rect.width < constrain.minWidth) {
+        rect.width = constrain.minWidth;
+    }
+    if (constrain.minHeight && rect.height < constrain.minHeight) {
+        rect.height = constrain.minHeight;
+    }
+    if (constrain.maxTop && rect.top > constrain.maxTop) {
+        rect.top = constrain.maxTop;
+    }
+    if (constrain.maxLeft && rect.left > constrain.maxLeft) {
+        rect.left = constrain.maxLeft;
+    }
+    if (constrain.maxWidth && rect.width > constrain.maxWidth) {
+        rect.width = constrain.maxWidth;
+    }
+    if (constrain.maxHeight && rect.height > constrain.maxHeight) {
+        rect.height = constrain.maxHeight;
+    }
+    if (rect.width <= 0) {
+        rect.width = constrain.minWidth || 20;
+    }
+    if (rect.height <= 0) {
+        rect.height = constrain.minHeight || 20;
+    }
+    return rect;
+};
+exports.pause = function (ms) { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
+    return [2, new Promise(function (resolve) { return setTimeout(resolve, ms); })];
+}); }); };
+exports.generateStroke = function (width, color) {
+    var str = "";
+    for (var i = -width; i < width; i++) {
+        str += width + "px " + i + "px 0 " + color + "," + -width + "px " + i + "px 0 " + color + "," + i + "px " + width + "px 0 " + color + "," + i + "px " + -width + "px 0 " + color + ",";
+    }
+    return str.slice(0, -1);
+};
+exports.pipe = function (data, mutators) { return __awaiter(_this, void 0, void 0, function () {
+    var _i, mutators_1, m;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _i = 0, mutators_1 = mutators;
+                _a.label = 1;
+            case 1:
+                if (!(_i < mutators_1.length)) return [3, 4];
+                m = mutators_1[_i];
+                return [4, m(data)];
+            case 2:
+                data = _a.sent();
+                _a.label = 3;
+            case 3:
+                _i++;
+                return [3, 1];
+            case 4: return [2, data];
+        }
+    });
+}); };
+exports.pipeline = function (mutators) { return function (data) { return exports.pipe(data, mutators); }; };
+
+
+/***/ }),
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4084,7 +4234,7 @@ function internalError(message) {
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4206,7 +4356,7 @@ exports.default = EventAggregator;
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4215,149 +4365,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.IMAGE = "image";
 exports.TEXT = "text";
 exports.SHAPE = "shape";
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-var _this = this;
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.rectKeys = ["left", "top", "width", "height"];
-exports.rectConstrainKeys = ["minWidth", "minHeight", "maxWidth", "maxHeight"];
-exports.getScale = function (original, target, maximize) {
-    var maxWidthScale = target.width / original.width;
-    var maxHeightScale = target.height / original.height;
-    if (maximize) {
-        return maxHeightScale < maxWidthScale ? maxWidthScale : maxHeightScale;
-    }
-    else {
-        return maxHeightScale > maxWidthScale ? maxWidthScale : maxHeightScale;
-    }
-};
-exports.setScale = function (obj, scale) { return Object.keys(obj).reduce(function (scaled, key) {
-    scaled[key] = obj[key] * scale;
-    return scaled;
-}, {}); };
-exports.round = function (obj) { return Object.keys(obj).reduce(function (rounded, key) {
-    rounded[key] = Math.round(obj[key]);
-    return rounded;
-}, {}); };
-exports.rectIsEqual = function (prev, curr) { return prev.top === curr.top &&
-    prev.left === curr.left &&
-    prev.width === curr.width &&
-    prev.height === curr.height; };
-exports.getRect = function (obj) {
-    var rect = {};
-    if (obj["left"] !== undefined) {
-        rect.left = obj["left"];
-    }
-    if (obj["top"] !== undefined) {
-        rect.top = obj["top"];
-    }
-    if (obj["width"] !== undefined) {
-        rect.width = obj["width"];
-    }
-    if (obj["height"] !== undefined) {
-        rect.height = obj["height"];
-    }
-    return rect;
-};
-exports.getConstrainedRect = function (rect, constrain) {
-    if (constrain.minTop && rect.top < constrain.minTop) {
-        rect.top = constrain.minTop;
-    }
-    if (constrain.minLeft && rect.left < constrain.minLeft) {
-        rect.left = constrain.minLeft;
-    }
-    if (constrain.minWidth && rect.width < constrain.minWidth) {
-        rect.width = constrain.minWidth;
-    }
-    if (constrain.minHeight && rect.height < constrain.minHeight) {
-        rect.height = constrain.minHeight;
-    }
-    if (constrain.maxTop && rect.top > constrain.maxTop) {
-        rect.top = constrain.maxTop;
-    }
-    if (constrain.maxLeft && rect.left > constrain.maxLeft) {
-        rect.left = constrain.maxLeft;
-    }
-    if (constrain.maxWidth && rect.width > constrain.maxWidth) {
-        rect.width = constrain.maxWidth;
-    }
-    if (constrain.maxHeight && rect.height > constrain.maxHeight) {
-        rect.height = constrain.maxHeight;
-    }
-    if (rect.width <= 0) {
-        rect.width = constrain.minWidth || 20;
-    }
-    if (rect.height <= 0) {
-        rect.height = constrain.minHeight || 20;
-    }
-    return rect;
-};
-exports.pause = function (ms) { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
-    return [2, new Promise(function (resolve) { return setTimeout(resolve, ms); })];
-}); }); };
-exports.pipe = function (data, mutators) { return __awaiter(_this, void 0, void 0, function () {
-    var _i, mutators_1, m;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                _i = 0, mutators_1 = mutators;
-                _a.label = 1;
-            case 1:
-                if (!(_i < mutators_1.length)) return [3, 4];
-                m = mutators_1[_i];
-                return [4, m(data)];
-            case 2:
-                data = _a.sent();
-                _a.label = 3;
-            case 3:
-                _i++;
-                return [3, 1];
-            case 4: return [2, data];
-        }
-    });
-}); };
-exports.pipeline = function (mutators) { return function (data) { return exports.pipe(data, mutators); }; };
 
 
 /***/ }),
@@ -5366,6 +5373,28 @@ exports.imageUrlToB64 = function (url, quality, maxWidth, maxHeight) {
         xhr.send();
     });
 };
+exports.renderServer = function (html, dimensions) { return __awaiter(_this, void 0, void 0, function () {
+    var res, blob;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4, fetch("http://localhost:3000/html/", {
+                    body: JSON.stringify({ html: html, dimensions: dimensions }),
+                    headers: {
+                        "Accept": "application/json, text/plain, */*",
+                        "Content-Type": "application/json",
+                    },
+                    method: "POST",
+                })];
+            case 1:
+                res = _a.sent();
+                return [4, res.blob()];
+            case 2:
+                blob = _a.sent();
+                return [4, URL.createObjectURL(blob)];
+            case 3: return [2, _a.sent()];
+        }
+    });
+}); };
 exports.domToImage = function (node) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
         return [2, DTI.toPng(node)];
@@ -5715,7 +5744,7 @@ PriorityIndex_1.setNodeFromJSON(nodeFromJSON);
 /* unused harmony export base64Bytes_ */
 /* unused harmony export dataURLBytes_ */
 /* unused harmony export dataURLContentType_ */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(14);
 /**
  * Copyright 2017 Google Inc.
  *
@@ -6002,7 +6031,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var eventaggregator_1 = __webpack_require__(14);
+var eventaggregator_1 = __webpack_require__(15);
 var m = __webpack_require__(2);
 var dom_1 = __webpack_require__(7);
 var logger_1 = __webpack_require__(18);
@@ -6036,12 +6065,7 @@ var DragItem = (function () {
     };
     DragItem.prototype.updatePosition = function (position) {
         this.setPosition(position);
-        if (this.dragStarted > 0 || this.resizeStarted > 0) {
-            this.setDOMFixedPosition();
-        }
-        else {
-            this.setDOMRelativePosition();
-        }
+        this.setDOMPosition(position);
     };
     DragItem.prototype.setStaticPosition = function (position) {
         this.staticPosition = position;
@@ -6285,17 +6309,22 @@ var DragItem = (function () {
     };
     DragItem.prototype.setDOMFixedPosition = function (position) {
         if (position === void 0) { position = this.position; }
+        this.setDOMPosition(position);
         if (this.sourceArea && this.sourceArea === this.targetArea) {
-            dom_1.setStyle(this.dom, __assign({ position: "fixed" }, dom_1.getRectStyle(position)));
+            dom_1.setStyle(this.dom, { position: "fixed" });
         }
         else {
-            dom_1.setStyle(this.dom, __assign({ position: "fixed" }, dom_1.getRectStyle(position), { zIndex: 999 }));
+            dom_1.setStyle(this.dom, { position: "fixed", zIndex: 999 });
         }
     };
     DragItem.prototype.setDOMRelativePosition = function (position) {
         if (position === void 0) { position = this.position; }
-        var _a = dom_1.getRectStyle(position), top = _a.top, left = _a.left, width = _a.width, height = _a.height;
-        dom_1.setStyle(this.dom, { position: "absolute", top: top, left: left, width: width, height: height, zIndex: 0 });
+        this.setDOMPosition(position);
+        dom_1.setStyle(this.dom, { position: "absolute", zIndex: 0 });
+    };
+    DragItem.prototype.setDOMPosition = function (position) {
+        if (position === void 0) { position = this.position; }
+        dom_1.setStyle(this.dom, __assign({}, dom_1.getRectStyle(position)));
     };
     DragItem.prototype.clearDOMPosition = function () {
         dom_1.setStyle(this.dom, {
@@ -6528,6 +6557,7 @@ var DragItem = (function () {
         else if (this.resizeStarted !== 0) {
             this.onResizeUp(event);
         }
+        this.reset(true);
     };
     DragItem.prototype.onMouseMove = function (event) {
         if (Date.now() < this.pressStamp + mouseEventDelay) {
@@ -8460,7 +8490,7 @@ var minSafeInteger = -9007199254740991;
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Location; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(14);
 /**
  * Copyright 2017 Google Inc.
  *
@@ -10209,7 +10239,7 @@ exports.RepoManager = RepoManager;
 /* harmony export (immutable) */ __webpack_exports__["c"] = nonNegativeNumberSpec;
 /* harmony export (immutable) */ __webpack_exports__["a"] = looseObjectSpec;
 /* harmony export (immutable) */ __webpack_exports__["d"] = nullFunctionSpec;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__metadata__ = __webpack_require__(53);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__type__ = __webpack_require__(11);
 /**
@@ -17076,7 +17106,7 @@ var ErrorCode;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Reference; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__implementation_args__ = __webpack_require__(52);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__implementation_blob__ = __webpack_require__(97);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__implementation_error__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__implementation_error__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__implementation_location__ = __webpack_require__(42);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__implementation_metadata__ = __webpack_require__(53);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__implementation_object__ = __webpack_require__(24);
@@ -17562,7 +17592,7 @@ var FbsBlob = /** @class */ (function () {
 /* harmony export (immutable) */ __webpack_exports__["b"] = continueResumableUpload;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__array__ = __webpack_require__(55);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__blob__ = __webpack_require__(97);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__error__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__error__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__metadata__ = __webpack_require__(53);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__object__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__requestinfo__ = __webpack_require__(189);
@@ -18221,7 +18251,7 @@ productEA.on("submit", function (event) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var detect_browser_1 = __webpack_require__(111);
 var easydeps_1 = __webpack_require__(12);
-var eventaggregator_1 = __webpack_require__(14);
+var eventaggregator_1 = __webpack_require__(15);
 var m = __webpack_require__(2);
 var productManager_1 = __webpack_require__(114);
 var dom_1 = __webpack_require__(7);
@@ -18731,9 +18761,9 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var clone = __webpack_require__(115);
-var eventaggregator_1 = __webpack_require__(14);
-var enums_1 = __webpack_require__(15);
-var helpers_1 = __webpack_require__(16);
+var eventaggregator_1 = __webpack_require__(15);
+var enums_1 = __webpack_require__(16);
+var helpers_1 = __webpack_require__(13);
 var productEA = eventaggregator_1.default.getInstance("product");
 var ProductManager = (function () {
     function ProductManager(product, defaults) {
@@ -31501,7 +31531,7 @@ var XhrIoPool = /** @class */ (function () {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return NetworkXhrIo; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__error__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__object__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__promise_external__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__type__ = __webpack_require__(11);
@@ -31812,7 +31842,7 @@ var RequestInfo = /** @class */ (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__implementation_args__ = __webpack_require__(52);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__implementation_array__ = __webpack_require__(55);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__implementation_async__ = __webpack_require__(193);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__implementation_error__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__implementation_error__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__implementation_promise_external__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__implementation_requests__ = __webpack_require__(98);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__implementation_type__ = __webpack_require__(11);
@@ -32684,7 +32714,7 @@ var ServiceInternals = /** @class */ (function () {
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AuthWrapper; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__constants__ = __webpack_require__(41);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__error__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__error__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__failrequest__ = __webpack_require__(196);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__location__ = __webpack_require__(42);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__promise_external__ = __webpack_require__(21);
@@ -32923,7 +32953,7 @@ var RequestMap = /** @class */ (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__firebase_app__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__array__ = __webpack_require__(55);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__backoff__ = __webpack_require__(199);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__error__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__error__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__object__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__promise_external__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__type__ = __webpack_require__(11);
@@ -35650,7 +35680,8 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var m = __webpack_require__(2);
-var enums_1 = __webpack_require__(15);
+var enums_1 = __webpack_require__(16);
+var helpers_1 = __webpack_require__(13);
 var HolderContent = (function () {
     function HolderContent() {
     }
@@ -35672,17 +35703,18 @@ var HolderContent = (function () {
     return HolderContent;
 }());
 exports.default = HolderContent;
+var getStrokeWidth = function (width, fontSize) {
+    if (width === void 0) { width = 1; }
+    if (fontSize === void 0) { fontSize = 22; }
+    return (typeof width === "string" ? parseFloat(width) : width) * (typeof fontSize === "string" ? parseFloat(fontSize) : fontSize) / 100;
+};
 var holderContentStyle = function (h) {
     if (!h.content) {
         return {};
     }
-    var style = {
+    return {
         width: "100%",
     };
-    if (h.content.filter && h.content.filter) {
-        style = __assign({}, style, h.content.filter.value);
-    }
-    return style;
 };
 exports.getHolderImgStyle = function (h) {
     var style = __assign({}, holderContentStyle(h));
@@ -35690,6 +35722,9 @@ exports.getHolderImgStyle = function (h) {
         return style;
     }
     style = __assign({}, style, { position: "absolute", objectFit: "cover", width: "100%", height: "100%" });
+    if (h.content.filter && h.content.filter) {
+        style = __assign({}, style, h.content.filter.value);
+    }
     return style;
 };
 exports.getHolderShapeStyle = function (h) {
@@ -35700,6 +35735,14 @@ exports.getHolderShapeStyle = function (h) {
     var _a = h.content, color = _a.color, fontSize = _a.fontSize, fontWeight = _a.fontWeight, textDecoration = _a.textDecoration;
     style = __assign({}, style, { color: color,
         fontSize: fontSize, textAlign: (h.content && h.content.align) || "" });
+    if (h.content.filter && h.content.filter) {
+        if (h.content.filter.key.indexOf("stroke") === -1) {
+            style = __assign({}, style, h.content.filter.value);
+        }
+        else {
+            style.textShadow = helpers_1.generateStroke(getStrokeWidth(h.content.filter.value.width, h.content.fontSize), h.content.filter.value.color);
+        }
+    }
     return style;
 };
 exports.getHolderTextStyle = function (h) {
@@ -35714,6 +35757,14 @@ exports.getHolderTextStyle = function (h) {
         fontStyle: fontStyle,
         fontWeight: fontWeight,
         textDecoration: textDecoration, textAlign: (h.content && h.content.align) || "" });
+    if (h.content.filter && h.content.filter) {
+        if (h.content.filter.key.indexOf("stroke") === -1) {
+            style = __assign({}, style, h.content.filter.value);
+        }
+        else {
+            style.textShadow = helpers_1.generateStroke(getStrokeWidth(h.content.filter.value.width, h.content.fontSize), h.content.filter.value.color);
+        }
+    }
     return style;
 };
 
@@ -35829,11 +35880,16 @@ var Input_1 = __webpack_require__(103);
 var Select_1 = __webpack_require__(225);
 var ImageBackgroundRemover_1 = __webpack_require__(226);
 var ImageEditor_1 = __webpack_require__(231);
-var enums_1 = __webpack_require__(15);
+var enums_1 = __webpack_require__(16);
 var dom_1 = __webpack_require__(7);
-var helpers_1 = __webpack_require__(16);
+var helpers_1 = __webpack_require__(13);
 var object_1 = __webpack_require__(4);
 __webpack_require__(239);
+var getStrokeWidth = function (width, fontSize) {
+    if (width === void 0) { width = 1; }
+    if (fontSize === void 0) { fontSize = 22; }
+    return (typeof width === "string" ? parseFloat(width) : width) * (typeof fontSize === "string" ? parseFloat(fontSize) : fontSize) / 100;
+};
 var Editor = (function () {
     function Editor() {
         this.imageBackgroundRemover = false;
@@ -35909,8 +35965,12 @@ var Editor = (function () {
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Text filter"),
             m(Select_1.default, { className: "filterOptions", option: attrs.holder.content.filter || attrs.contentoptions.textFilter[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentfilterchange, value); } }, attrs.contentoptions.textFilter.map(function (filter) {
+                if (filter.key.indexOf("stroke") === -1) {
+                    return m("span", { option: filter },
+                        m("span", { style: filter.value }, filter.key));
+                }
                 return m("span", { option: filter },
-                    m("span", { style: filter.value }, filter.key));
+                    m("span", { style: { textShadow: helpers_1.generateStroke(getStrokeWidth(filter.value.width, attrs.holder.content.fontSize), filter.value.color) } }, filter.key));
             }))));
         return options;
     };
@@ -35971,8 +36031,12 @@ var Editor = (function () {
         options.push(m("div", { className: "option" },
             m("span", { className: "option-description" }, "Shape filter"),
             m(Select_1.default, { className: "filterOptions", option: attrs.holder.content.filter || attrs.contentoptions.shapeFilter[0], oninput: function (value, event) { return dom_1.devent(event) && object_1.exec(attrs.oncontentfilterchange, value); } }, attrs.contentoptions.shapeFilter.map(function (filter) {
+                if (filter.key.indexOf("stroke") === -1) {
+                    return m("span", { option: filter },
+                        m("span", { style: filter.value }, filter.key));
+                }
                 return m("span", { option: filter },
-                    m("span", { style: filter.value }, filter.key));
+                    m("span", { style: { textShadow: helpers_1.generateStroke(getStrokeWidth(filter.value.width, attrs.holder.content.fontSize), filter.value.color) } }, filter.key));
             }))));
         return options;
     };
@@ -36234,7 +36298,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var eventaggregator_1 = __webpack_require__(14);
+var eventaggregator_1 = __webpack_require__(15);
 var m = __webpack_require__(2);
 var image_1 = __webpack_require__(26);
 var object_1 = __webpack_require__(4);
@@ -36555,10 +36619,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var eventaggregator_1 = __webpack_require__(14);
+var eventaggregator_1 = __webpack_require__(15);
 var m = __webpack_require__(2);
 var dom_1 = __webpack_require__(7);
-var helpers_1 = __webpack_require__(16);
+var helpers_1 = __webpack_require__(13);
 var image_1 = __webpack_require__(26);
 var logger_1 = __webpack_require__(18);
 var object_1 = __webpack_require__(4);
@@ -36744,7 +36808,7 @@ exports = module.exports = __webpack_require__(5)(undefined);
 
 
 // module
-exports.push([module.i, ".component--drag.drag-item {\n  position: relative;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none;\n  overflow: hidden; }\n  .component--drag.drag-item.handle {\n    cursor: move; }\n  .component--drag.drag-item > .handle {\n    position: absolute;\n    left: 0;\n    top: 0;\n    width: 6px;\n    height: 6px;\n    cursor: move;\n    z-index: 1;\n    overflow: hidden;\n    background-color: rgba(0, 0, 0, 0.4); }\n  .component--drag.drag-item.focus {\n    -webkit-box-shadow: inset 0 0 0 2px black;\n            box-shadow: inset 0 0 0 2px black; }\n  .component--drag.drag-item > .border {\n    position: absolute;\n    z-index: 1;\n    -webkit-user-select: none;\n       -moz-user-select: none;\n        -ms-user-select: none;\n            user-select: none; }\n    .component--drag.drag-item > .border.left {\n      left: 0;\n      top: 4px;\n      height: calc(100% - 4px - 4px);\n      width: 4px;\n      cursor: w-resize; }\n    .component--drag.drag-item > .border.right {\n      right: 0;\n      top: 4px;\n      height: calc(100% - 4px - 4px);\n      width: 4px;\n      cursor: w-resize; }\n    .component--drag.drag-item > .border.top {\n      left: 4px;\n      top: 0;\n      width: calc(100% - 4px - 4px);\n      height: 4px;\n      cursor: n-resize; }\n    .component--drag.drag-item > .border.bottom {\n      left: 4px;\n      bottom: 0;\n      width: calc(100% - 4px - 4px);\n      height: 4px;\n      cursor: n-resize; }\n    .component--drag.drag-item > .border.top-left {\n      left: 0;\n      top: 0;\n      width: 4px;\n      height: 4px;\n      cursor: se-resize; }\n    .component--drag.drag-item > .border.top-right {\n      right: 0;\n      top: 0;\n      width: 4px;\n      height: 4px;\n      cursor: ne-resize; }\n    .component--drag.drag-item > .border.bottom-right {\n      bottom: 0;\n      right: 0;\n      width: 4px;\n      height: 4px;\n      cursor: se-resize; }\n    .component--drag.drag-item > .border.bottom-left {\n      bottom: 0;\n      left: 0;\n      width: 4px;\n      height: 4px;\n      cursor: ne-resize; }\n", ""]);
+exports.push([module.i, ".component--drag.drag-item {\n  position: relative;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none;\n  min-width: 10px;\n  min-height: 10px; }\n  .component--drag.drag-item.handle {\n    cursor: move; }\n  .component--drag.drag-item > .handle {\n    position: absolute;\n    left: 0;\n    top: 0;\n    width: 6px;\n    height: 6px;\n    cursor: move;\n    z-index: 1;\n    background-color: rgba(0, 0, 0, 0.4); }\n  .component--drag.drag-item.focus {\n    -webkit-box-shadow: inset 0 0 0 2px black;\n            box-shadow: inset 0 0 0 2px black; }\n  .component--drag.drag-item > .border {\n    position: absolute;\n    z-index: 1;\n    -webkit-user-select: none;\n       -moz-user-select: none;\n        -ms-user-select: none;\n            user-select: none;\n    -webkit-transition: background-color .25s .5s;\n    transition: background-color .25s .5s; }\n    .component--drag.drag-item > .border:hover {\n      background-color: rgba(0, 0, 0, 0.5);\n      -webkit-transition: background-color .25s;\n      transition: background-color .25s; }\n    .component--drag.drag-item > .border.left {\n      left: -4px;\n      top: 0;\n      height: 100%;\n      width: 12px;\n      cursor: w-resize; }\n    .component--drag.drag-item > .border.right {\n      right: -4px;\n      top: 0;\n      height: 100%;\n      width: 12px;\n      cursor: w-resize; }\n    .component--drag.drag-item > .border.top {\n      left: 0;\n      top: -4px;\n      width: 100%;\n      height: 12px;\n      cursor: n-resize; }\n    .component--drag.drag-item > .border.bottom {\n      left: 0;\n      bottom: -4px;\n      width: 100%;\n      height: 12px;\n      cursor: n-resize; }\n", ""]);
 
 // exports
 
@@ -36810,7 +36874,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var dom_1 = __webpack_require__(7);
-var helpers_1 = __webpack_require__(16);
+var helpers_1 = __webpack_require__(13);
 var preview;
 exports.initializePreview = function () {
     if (preview !== undefined) {
@@ -37080,7 +37144,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var m = __webpack_require__(2);
 var index_1 = __webpack_require__(58);
 var dom_1 = __webpack_require__(7);
-var helpers_1 = __webpack_require__(16);
+var helpers_1 = __webpack_require__(13);
 var Holder_1 = __webpack_require__(56);
 var controller_1 = __webpack_require__(248);
 __webpack_require__(249);
@@ -37112,7 +37176,7 @@ exports.default = HolderDrawer;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var eventaggregator_1 = __webpack_require__(14);
+var eventaggregator_1 = __webpack_require__(15);
 var Controller = (function () {
     function Controller() {
         this.events = [];
@@ -37403,14 +37467,14 @@ exports.push([module.i, ".component--HolderDrawer {\n  height: auto;\n  backgrou
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var eventaggregator_1 = __webpack_require__(14);
+var eventaggregator_1 = __webpack_require__(15);
 var m = __webpack_require__(2);
 var index_1 = __webpack_require__(32);
 var Checkbox_1 = __webpack_require__(102);
 var index_2 = __webpack_require__(252);
 var ImageUploadUrl_1 = __webpack_require__(253);
 var index_3 = __webpack_require__(58);
-var enums_1 = __webpack_require__(15);
+var enums_1 = __webpack_require__(16);
 var LocalStorage = __webpack_require__(100);
 var injectTransition_1 = __webpack_require__(43);
 __webpack_require__(255);
@@ -37902,12 +37966,12 @@ exports.default = LayoutDrawer;
 Object.defineProperty(exports, "__esModule", { value: true });
 var m = __webpack_require__(2);
 var dom_1 = __webpack_require__(7);
-var helpers_1 = __webpack_require__(16);
+var helpers_1 = __webpack_require__(13);
 var object_1 = __webpack_require__(4);
 var iconText = __webpack_require__(106);
 var iconImage = __webpack_require__(107);
 var iconShape = __webpack_require__(108);
-var index_1 = __webpack_require__(15);
+var index_1 = __webpack_require__(16);
 __webpack_require__(259);
 var getPlaceholderContentIcon = function (holder) {
     var icons = [];
@@ -38081,7 +38145,7 @@ exports.push([module.i, ".component--LayoutDrawer {\n  height: auto;\n  backgrou
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var m = __webpack_require__(2);
-var index_1 = __webpack_require__(15);
+var index_1 = __webpack_require__(16);
 var injectTransition_1 = __webpack_require__(43);
 var iconText = __webpack_require__(106);
 var iconImage = __webpack_require__(107);
@@ -38160,12 +38224,12 @@ exports.push([module.i, ".component--OtherDrawer {\n  height: auto;\n  backgroun
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var eventaggregator_1 = __webpack_require__(14);
+var eventaggregator_1 = __webpack_require__(15);
 var m = __webpack_require__(2);
 var Area_1 = __webpack_require__(57);
 var Item_1 = __webpack_require__(32);
 var dom_1 = __webpack_require__(7);
-var helpers_1 = __webpack_require__(16);
+var helpers_1 = __webpack_require__(13);
 var injectTransition_1 = __webpack_require__(43);
 var Holder_1 = __webpack_require__(56);
 var controller_1 = __webpack_require__(268);
@@ -38234,7 +38298,7 @@ exports.default = ProductPreview;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var easydeps_1 = __webpack_require__(12);
-var enums_1 = __webpack_require__(15);
+var enums_1 = __webpack_require__(16);
 var logger_1 = __webpack_require__(18);
 var ProductPreviewController = (function () {
     function ProductPreviewController() {
@@ -38272,17 +38336,19 @@ var ProductPreviewController = (function () {
         var itemRect = item.getBoundingClientRect();
         var areaRect = targetArea.getBoundingClientRect();
         var content = item.getData("content");
-        if (holder === undefined) {
-            if (!this.layout) {
-                return false;
+        if (initial) {
+            if (holder === undefined) {
+                if (!this.layout) {
+                    return false;
+                }
+                var position = item.getPosition();
+                var targetHeight = this.layout.position.height;
+                item.setStaticPosition({ height: targetHeight, width: position.width * (targetHeight / position.height) });
             }
-            var position = item.getPosition();
-            var targetHeight = this.layout.position.height;
-            item.setStaticPosition({ height: targetHeight, width: position.width * (targetHeight / position.height) });
-        }
-        else if (content.type === enums_1.IMAGE && holder.type.indexOf(content.type) !== -1) {
-            var position = item.getPosition();
-            item.setStaticPosition({ height: holder.position.height, width: holder.position.width });
+            else if (content.type === enums_1.IMAGE && holder.type.indexOf(content.type) !== -1) {
+                var position = item.getPosition();
+                item.setStaticPosition({ height: holder.position.height, width: holder.position.width });
+            }
         }
         if (itemRect.left < areaRect.left || itemRect.left + itemRect.width > areaRect.left + areaRect.width ||
             itemRect.top < areaRect.top || itemRect.top + itemRect.height > areaRect.top + areaRect.height) {
@@ -38479,7 +38545,7 @@ exports = module.exports = __webpack_require__(5)(undefined);
 
 
 // module
-exports.push([module.i, "body {\n  margin: 0; }\n\n* {\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none; }\n\n.component--Main {\n  height: 100vh;\n  width: 100vw;\n  background-color: white; }\n  .component--Main .sideBySide {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-orient: horizontal;\n    -webkit-box-direction: normal;\n        -ms-flex-direction: row;\n            flex-direction: row; }\n    .component--Main .sideBySide > * {\n      -webkit-box-flex: 1;\n          -ms-flex: 1 0 auto;\n              flex: 1 0 auto; }\n  .component--Main .element-description {\n    font-family: \"Segoe UI\", monospace;\n    line-height: 24px;\n    color: white; }\n  .component--Main .defaultLib {\n    position: relative;\n    width: 100%;\n    height: 40px;\n    background-color: rgba(255, 255, 255, 0.6); }\n    .component--Main .defaultLib > .nav {\n      position: absolute;\n      top: 0;\n      height: 40px;\n      width: 20px;\n      text-align: center;\n      line-height: 40px;\n      background-color: cadetblue; }\n      .component--Main .defaultLib > .nav.prev {\n        left: 0; }\n      .component--Main .defaultLib > .nav.next {\n        right: 0; }\n    .component--Main .defaultLib > .items {\n      position: absolute;\n      left: 20px;\n      width: calc(100% - 40px);\n      height: calc(100% - 10px);\n      padding: 5px;\n      display: -webkit-box;\n      display: -ms-flexbox;\n      display: flex;\n      overflow: hidden; }\n      .component--Main .defaultLib > .items > .item {\n        display: inline-block;\n        position: relative; }\n        .component--Main .defaultLib > .items > .item > * {\n          height: 100%; }\n        .component--Main .defaultLib > .items > .item:not(:first-child) {\n          margin-left: 5px; }\n        .component--Main .defaultLib > .items > .item img {\n          height: 100%; }\n  .component--Main .ProductPreview-wrapper {\n    padding: 40px;\n    height: 10vw;\n    background-color: #cce2e3; }\n  .component--Main .drag-item {\n    overflow: hidden; }\n    .component--Main .drag-item.dragging.within-area img {\n      display: block;\n      height: 100%;\n      width: 100%;\n      -o-object-fit: cover;\n         object-fit: cover; }\n\nimg.pixelated, .pixelated img {\n  -ms-interpolation-mode: nearest-neighbor;\n      image-rendering: -webkit-optimize-contrast;\n      image-rendering: -moz-crisp-edges;\n      image-rendering: -o-pixelated;\n      image-rendering: pixelated; }\n\nbutton {\n  padding: 5px;\n  cursor: pointer;\n  background-color: #cce2e3;\n  border: none;\n  margin: 2px; }\n", ""]);
+exports.push([module.i, "body {\n  margin: 0; }\n\n* {\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none; }\n\n.component--Main {\n  height: 100vh;\n  width: 100vw;\n  background-color: white; }\n  .component--Main .sideBySide {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-orient: horizontal;\n    -webkit-box-direction: normal;\n        -ms-flex-direction: row;\n            flex-direction: row; }\n    .component--Main .sideBySide > * {\n      -webkit-box-flex: 1;\n          -ms-flex: 1 0 auto;\n              flex: 1 0 auto; }\n  .component--Main .element-description {\n    font-family: \"Segoe UI\", monospace;\n    line-height: 24px;\n    color: white; }\n  .component--Main .defaultLib {\n    position: relative;\n    width: 100%;\n    height: 40px;\n    background-color: rgba(255, 255, 255, 0.6); }\n    .component--Main .defaultLib > .nav {\n      position: absolute;\n      top: 0;\n      height: 40px;\n      width: 20px;\n      text-align: center;\n      line-height: 40px;\n      background-color: cadetblue; }\n      .component--Main .defaultLib > .nav.prev {\n        left: 0; }\n      .component--Main .defaultLib > .nav.next {\n        right: 0; }\n    .component--Main .defaultLib > .items {\n      position: absolute;\n      left: 20px;\n      width: calc(100% - 40px);\n      height: calc(100% - 10px);\n      padding: 5px;\n      display: -webkit-box;\n      display: -ms-flexbox;\n      display: flex;\n      overflow: hidden; }\n      .component--Main .defaultLib > .items > .item {\n        display: inline-block;\n        position: relative; }\n        .component--Main .defaultLib > .items > .item > * {\n          height: 100%; }\n        .component--Main .defaultLib > .items > .item:not(:first-child) {\n          margin-left: 5px; }\n        .component--Main .defaultLib > .items > .item img {\n          height: 100%; }\n  .component--Main .ProductPreview-wrapper {\n    padding: 40px;\n    height: 10vw;\n    background-color: #cce2e3; }\n  .component--Main .drag-item.dragging.within-area img {\n    display: block;\n    height: 100%;\n    width: 100%;\n    -o-object-fit: cover;\n       object-fit: cover; }\n\nimg.pixelated, .pixelated img {\n  -ms-interpolation-mode: nearest-neighbor;\n      image-rendering: -webkit-optimize-contrast;\n      image-rendering: -moz-crisp-edges;\n      image-rendering: -o-pixelated;\n      image-rendering: pixelated; }\n\nbutton {\n  padding: 5px;\n  cursor: pointer;\n  background-color: #cce2e3;\n  border: none;\n  margin: 2px; }\n", ""]);
 
 // exports
 
@@ -38491,7 +38557,7 @@ exports.push([module.i, "body {\n  margin: 0; }\n\n* {\n  -webkit-user-select: n
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var index_1 = __webpack_require__(15);
+var index_1 = __webpack_require__(16);
 var object_1 = __webpack_require__(4);
 var layouts0 = {
     id: "0",
@@ -38659,6 +38725,177 @@ var layouts3 = {
     fixed: false,
 };
 var layouts = [layouts0, layouts1, layouts2, layouts3];
+var imageFilter = [
+    { key: "none", value: {} },
+    { key: "grayscale", value: { filter: "grayscale(1)" } },
+    { key: "darken", value: { filter: "brightness(.5)" } },
+    { key: "lighten", value: { filter: "brightness(2)" } },
+    { key: "low contrast", value: { filter: "contrast(.5)" } },
+    { key: "high contrast", value: { filter: "contrast(2)" } },
+    { key: "invert", value: { filter: "invert(1)" } },
+    { key: "sepia", value: { filter: "sepia(1)" } },
+    { key: "low saturate", value: { filter: "saturate(.5)" } },
+    { key: "high saturate", value: { filter: "saturate(2)" } },
+    {
+        key: "light blur",
+        value: {
+            filter: "blur(2.5px)", transform: "scale(1.1)",
+        },
+    },
+    {
+        key: "medium blur",
+        value: {
+            filter: "blur(10px)", transform: "scale(1.5)",
+        },
+    },
+    {
+        key: "high blur",
+        value: {
+            filter: "blur(20px)", transform: "scale(3)",
+        },
+    },
+    {
+        key: "extreme blur",
+        value: {
+            filter: "blur(80px)", transform: "scale(12)",
+        },
+    },
+];
+var textFilter = [
+    { key: "none", value: {} },
+    {
+        key: "black stroke thin",
+        value: {
+            width: ".5",
+            color: "black",
+        },
+    },
+    {
+        key: "white stroke thin",
+        value: {
+            width: ".5",
+            color: "white",
+        },
+    },
+    {
+        key: "black stroke medium",
+        value: {
+            width: "1",
+            color: "black",
+        },
+    },
+    {
+        key: "white stroke medium",
+        value: {
+            width: "1",
+            color: "white",
+        },
+    },
+    {
+        key: "black stroke thick",
+        value: {
+            width: "3",
+            color: "black",
+        },
+    },
+    {
+        key: "white stroke thick",
+        value: {
+            width: "3",
+            color: "white",
+        },
+    },
+    {
+        key: "emboss",
+        value: {
+            textShadow: "-.02em -.02em .02em #fff, .02em .02em .02em #000",
+        },
+    },
+    {
+        key: "inset",
+        value: {
+            textShadow: ".01em .01em 0 rgba(140,140,140,0.6), -.01em -.01em .01em rgba(0,0,0,0.67)",
+        },
+    },
+    {
+        key: "small white drop shadow",
+        value: {
+            textShadow: ".04em .04em #fff",
+        },
+    },
+    {
+        key: "small black drop shadow",
+        value: {
+            textShadow: ".04em .04em #000",
+        },
+    },
+    {
+        key: "small white drop shadow blur",
+        value: {
+            textShadow: ".04em .04em .08em #fff",
+        },
+    },
+    {
+        key: "small black drop shadow blur",
+        value: {
+            textShadow: ".04em .04em .08em #000",
+        },
+    },
+    {
+        key: "small white shadow behind",
+        value: {
+            textShadow: "0 0 .08em #fff",
+        },
+    },
+    {
+        key: "small black shadow behind",
+        value: {
+            textShadow: "0 0 .08em #000",
+        },
+    },
+    {
+        key: "medium white shadow behind",
+        value: {
+            textShadow: "0 0 .16em #fff",
+        },
+    },
+    {
+        key: "medium black shadow behind",
+        value: {
+            textShadow: "0 0 .16em #000",
+        },
+    },
+    {
+        key: "large white shadow behind",
+        value: {
+            textShadow: "0 0 .32em #fff",
+        },
+    },
+    {
+        key: "large black shadow behind",
+        value: {
+            textShadow: "0 0 .32em #000",
+        },
+    },
+    {
+        key: "funny",
+        value: {
+            textShadow: "-1px -1px 0 #6e1f58, 1px -1px 0 #6e1f58, -1px 1px 0 #6e1f58, 1px 1px 0 #6e1f58,\n1px 0px 0px #65f283, 0px 1px 0px #65f283, 2px 1px 0px #65f283, 1px 2px 0px #65f283,\n3px 2px 0px #65f283, 2px 3px 0px #65f283, 4px 3px 0px #65f283, 3px 4px 0px #65f283,\n5px 4px 0px #65f283, 3px 5px 0px #6e1f58, 6px 5px 0px #6e1f58, -1px 2px 0 black,\n0 3px 0 #6e1f58, 1px 4px 0 #6e1f58, 2px 5px 0px #6e1f58, 2px -1px 0 #6e1f58,\n3px 0 0 #6e1f58, 4px 1px 0 #6e1f58, 5px 2px 0px #6e1f58, 6px 3px 0 #6e1f58,\n7px 4px 0 #6e1f58, 10px 10px 4px #dac249",
+        },
+    },
+    {
+        key: "neon",
+        value: {
+            textShadow: "0 0 10px rgba(255,255,255,1),\n0 0 20px rgba(255,255,255,1),\n0 0 30px rgba(255,255,255,1),\n0 0 40px #ff00de,\n0 0 70px #ff00de,\n0 0 80px #ff00de,\n0 0 100px #ff00de",
+        },
+    },
+    {
+        key: "retro",
+        value: {
+            textShadow: ".04em .04em 0 rgb(238,238,238), .06em .06em 0 rgb(112,112,112)",
+        },
+    },
+];
 var productParts = [{
         id: "default",
         layout: object_1.clone(layouts0),
@@ -38727,212 +38964,9 @@ var productParts = [{
                 "light",
                 "bold",
             ],
-            textFilter: [
-                { key: "none", value: {} },
-                {
-                    key: "black border",
-                    value: {
-                        textShadow: ".02em .02em #000, -.02em .02em #000, .02em -.02em #000, -.02em -.02em #000, .02em .02em .1em #555",
-                    },
-                },
-                {
-                    key: "white border",
-                    value: {
-                        textShadow: ".02em .02em #fff, -.02em .02em #fff, .02em -.02em #fff, -.02em -.02em #fff, .02em .02em .1em #555",
-                    },
-                },
-                {
-                    key: "emboss",
-                    value: {
-                        textShadow: "-.02em -.02em .02em #fff, .02em .02em .02em #000",
-                    },
-                },
-                {
-                    key: "inset",
-                    value: {
-                        textShadow: ".02em .04em .04em #fff, 0 0 0 #000, .02em .04em .04em #fff",
-                    },
-                },
-                {
-                    key: "small white drop shadow",
-                    value: {
-                        textShadow: ".04em .04em #fff",
-                    },
-                },
-                {
-                    key: "small black drop shadow",
-                    value: {
-                        textShadow: ".04em .04em #000",
-                    },
-                },
-                {
-                    key: "small white drop shadow blur",
-                    value: {
-                        textShadow: ".04em .04em .08em #fff",
-                    },
-                },
-                {
-                    key: "small black drop shadow blur",
-                    value: {
-                        textShadow: ".04em .04em .08em #000",
-                    },
-                },
-                {
-                    key: "small white shadow behind",
-                    value: {
-                        textShadow: "0 0 .08em #fff",
-                    },
-                },
-                {
-                    key: "small black shadow behind",
-                    value: {
-                        textShadow: "0 0 .08em #000",
-                    },
-                },
-                {
-                    key: "medium white shadow behind",
-                    value: {
-                        textShadow: "0 0 .16em #fff",
-                    },
-                },
-                {
-                    key: "medium black shadow behind",
-                    value: {
-                        textShadow: "0 0 .16em #000",
-                    },
-                },
-                {
-                    key: "large white shadow behind",
-                    value: {
-                        textShadow: "0 0 .32em #fff",
-                    },
-                },
-                {
-                    key: "large black shadow behind",
-                    value: {
-                        textShadow: "0 0 .32em #000",
-                    },
-                },
-            ],
-            shapeFilter: [
-                { key: "none", value: {} },
-                {
-                    key: "black border",
-                    value: {
-                        textShadow: ".02em .02em #000, -.02em .02em #000, .02em -.02em #000, -.02em -.02em #000, .02em .02em .1em #555",
-                    },
-                },
-                {
-                    key: "white border",
-                    value: {
-                        textShadow: ".02em .02em #fff, -.02em .02em #fff, .02em -.02em #fff, -.02em -.02em #fff, .02em .02em .1em #555",
-                    },
-                },
-                {
-                    key: "emboss",
-                    value: {
-                        textShadow: "-.02em -.02em .02em #fff, .02em .02em .02em #000",
-                    },
-                },
-                {
-                    key: "inset",
-                    value: {
-                        textShadow: ".02em .04em .04em #fff, 0 0 0 #000, .02em .04em .04em #fff",
-                    },
-                },
-                {
-                    key: "small white drop shadow",
-                    value: {
-                        textShadow: ".04em .04em #fff",
-                    },
-                },
-                {
-                    key: "small black drop shadow",
-                    value: {
-                        textShadow: ".04em .04em #000",
-                    },
-                },
-                {
-                    key: "small white drop shadow blur",
-                    value: {
-                        textShadow: ".04em .04em .08em #fff",
-                    },
-                },
-                {
-                    key: "small black drop shadow blur",
-                    value: {
-                        textShadow: ".04em .04em .08em #000",
-                    },
-                },
-                {
-                    key: "small white shadow behind",
-                    value: {
-                        textShadow: "0 0 .08em #fff",
-                    },
-                },
-                {
-                    key: "small black shadow behind",
-                    value: {
-                        textShadow: "0 0 .08em #000",
-                    },
-                },
-                {
-                    key: "medium white shadow behind",
-                    value: {
-                        textShadow: "0 0 .16em #fff",
-                    },
-                },
-                {
-                    key: "medium black shadow behind",
-                    value: {
-                        textShadow: "0 0 .16em #000",
-                    },
-                },
-                {
-                    key: "large white shadow behind",
-                    value: {
-                        textShadow: "0 0 .32em #fff",
-                    },
-                },
-                {
-                    key: "large black shadow behind",
-                    value: {
-                        textShadow: "0 0 .32em #000",
-                    },
-                },
-            ],
-            imageFilter: [
-                { key: "none", value: {} },
-                { key: "grayscale", value: { filter: "grayscale(1)" } },
-                { key: "darken", value: { filter: "brightness(.5)" } },
-                { key: "lighten", value: { filter: "brightness(2)" } },
-                { key: "low contrast", value: { filter: "contrast(.5)" } },
-                { key: "high contrast", value: { filter: "contrast(2)" } },
-                {
-                    key: "light blur",
-                    value: {
-                        filter: "blur(2.5px)", transform: "scale(1.1)",
-                    },
-                },
-                {
-                    key: "medium blur",
-                    value: {
-                        filter: "blur(10px)", transform: "scale(1.5)",
-                    },
-                },
-                {
-                    key: "high blur",
-                    value: {
-                        filter: "blur(20px)", transform: "scale(3)",
-                    },
-                },
-                {
-                    key: "extreme blur",
-                    value: {
-                        filter: "blur(80px)", transform: "scale(12)",
-                    },
-                },
-            ],
+            textFilter: textFilter,
+            shapeFilter: textFilter,
+            imageFilter: imageFilter,
         },
     }];
 var product = {
