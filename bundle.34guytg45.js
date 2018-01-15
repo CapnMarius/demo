@@ -5460,7 +5460,11 @@ exports.colorPicker = function (canvas, onhover, onclick) {
     };
     canvas.addEventListener("mousemove", function (event) { return onhover.apply(void 0, pick(event)); });
     canvas.addEventListener("mouseup", function (event) { return onclick.apply(void 0, pick(event)); });
-    canvas.addEventListener("touchmove", function (event) { return onhover.apply(void 0, pick(event)); });
+    canvas.addEventListener("touchmove", function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        onhover.apply(void 0, pick(event));
+    });
     canvas.addEventListener("touchend", function (event) { return onclick.apply(void 0, pick(event)); });
 };
 exports.avgPixel = function (pixels) {
@@ -6134,7 +6138,6 @@ var DragItem = (function () {
             this.previousFixedPosition = {};
             this.lastTargetArea = undefined;
             this.position = {};
-            this.sourceArea = undefined;
             this.clearDOMPosition();
         }
         this.staticPosition = {};
@@ -6142,6 +6145,7 @@ var DragItem = (function () {
         this.dragStarted = 0;
         this.resizeStarted = 0;
         this.targetArea = undefined;
+        this.sourceArea = undefined;
         this.pressStamp = 0;
         this.dom.classList.remove("within-area", "dragging", "resizing");
         Area_1.getAreas(this.type).forEach(function (area) {
@@ -6557,7 +6561,7 @@ var DragItem = (function () {
         else if (this.resizeStarted !== 0) {
             this.onResizeUp(event);
         }
-        this.reset(true);
+        this.reset();
     };
     DragItem.prototype.onMouseMove = function (event) {
         if (Date.now() < this.pressStamp + mouseEventDelay) {
@@ -18263,7 +18267,7 @@ window.addEventListener("mousemove", (function (event) {
     domEA.emit("mousemove", event);
 }));
 window.addEventListener("touchmove", (function (event) {
-    dom_1.devent(event, { preventDefault: false });
+    dom_1.devent(event, { preventDefault: true, stopPropagation: true });
     domEA.emit("touchmove", event);
 }));
 window.addEventListener("mousedown", (function (event) {
@@ -34626,7 +34630,7 @@ if(false) {
 /* 212 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -34766,7 +34770,7 @@ if(false) {
 /* 215 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -36049,7 +36053,7 @@ exports.default = Editor;
 /* 222 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -36514,7 +36518,7 @@ if(false) {
 /* 228 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -36559,7 +36563,7 @@ if(false) {
 /* 230 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -36803,7 +36807,7 @@ if(false) {
 /* 233 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -36848,7 +36852,7 @@ if(false) {
 /* 235 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -36984,7 +36988,7 @@ if(false) {
 /* 238 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -37029,7 +37033,7 @@ if(false) {
 /* 240 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -37124,7 +37128,7 @@ if(false) {
 /* 243 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -37368,7 +37372,7 @@ if(false) {
 /* 247 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -37450,7 +37454,7 @@ if(false) {
 /* 250 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -37915,7 +37919,7 @@ if(false) {
 /* 256 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -38051,7 +38055,7 @@ if(false) {
 /* 260 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -38127,7 +38131,7 @@ if(false) {
 /* 263 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -38207,7 +38211,7 @@ if(false) {
 /* 266 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -38450,7 +38454,7 @@ if(false) {
 /* 270 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -38495,7 +38499,7 @@ if(false) {
 /* 272 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
@@ -38540,7 +38544,7 @@ if(false) {
 /* 274 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(undefined);
+exports = module.exports = __webpack_require__(5)(false);
 // imports
 
 
