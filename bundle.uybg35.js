@@ -6073,9 +6073,6 @@ var DragItem = (function () {
     };
     DragItem.prototype.setStaticPosition = function (position) {
         this.staticPosition = position;
-        if (this.dragStarted > 0 || this.resizeStarted > 0) {
-            this.setDOMFixedPosition(__assign({}, this.position, this.staticPosition));
-        }
     };
     DragItem.prototype.getPosition = function (_a) {
         var snapToGrid = (_a === void 0 ? {} : _a).snapToGrid;
@@ -19030,6 +19027,11 @@ var ProductManager = (function () {
         if (holder.type.indexOf(enums_1.IMAGE) !== -1 && content.type === enums_1.IMAGE) {
             if (!holder.content || holder.content.originalValue === undefined) {
                 content.originalValue = content.value;
+            }
+        }
+        else {
+            if (content.fontSize !== undefined) {
+                content.fontSize = (parseFloat(content.fontSize) * (1 / this.previewScale)).toString();
             }
         }
         holder.content = __assign({}, this.defaults, holder.content, content);
@@ -35725,7 +35727,7 @@ exports.getHolderImgStyle = function (h) {
     if (!h.content) {
         return style;
     }
-    style = __assign({}, style, { position: "absolute", objectFit: "cover", width: "100%", height: "100%" });
+    style = __assign({}, style, { position: "absolute", objectFit: "cover", width: "100%", height: "100%", top: "0", left: "0" });
     if (h.content.filter && h.content.filter) {
         style = __assign({}, style, h.content.filter.value);
     }
@@ -37377,7 +37379,7 @@ exports = module.exports = __webpack_require__(5)(false);
 
 
 // module
-exports.push([module.i, ".component--library {\n  width: 100%;\n  height: 100%;\n  overflow: hidden;\n  position: relative; }\n  .component--library .prev, .component--library .next {\n    cursor: pointer; }\n    .component--library .prev.disabled, .component--library .next.disabled {\n      cursor: default;\n      pointer-events: none; }\n", ""]);
+exports.push([module.i, ".component--library {\n  overflow: hidden;\n  position: relative;\n  width: 100%;\n  height: 40px; }\n  .component--library > .nav {\n    position: absolute;\n    top: 0;\n    height: 40px;\n    width: 20px;\n    text-align: center;\n    line-height: 40px;\n    background-color: cadetblue; }\n    .component--library > .nav.prev {\n      left: 0; }\n    .component--library > .nav.next {\n      right: 0; }\n    .component--library > .nav.prev, .component--library > .nav.next {\n      cursor: pointer; }\n      .component--library > .nav.prev.disabled, .component--library > .nav.next.disabled {\n        cursor: default;\n        pointer-events: none; }\n  .component--library > .items {\n    position: absolute;\n    left: 20px;\n    width: calc(100% - 40px);\n    height: calc(100% - ($defaultLibMargin * 2));\n    padding: 5px;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    overflow: hidden; }\n    .component--library > .items > .item {\n      display: inline-block;\n      position: relative;\n      height: 30px; }\n      .component--library > .items > .item:not(:first-child) {\n        margin-left: 5px; }\n      .component--library > .items > .item * {\n        height: 30px; }\n", ""]);
 
 // exports
 
@@ -38549,7 +38551,7 @@ exports = module.exports = __webpack_require__(5)(false);
 
 
 // module
-exports.push([module.i, "body {\n  margin: 0; }\n\n* {\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none; }\n\n.component--Main {\n  height: 100vh;\n  width: 100vw;\n  background-color: white; }\n  .component--Main .sideBySide {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-orient: horizontal;\n    -webkit-box-direction: normal;\n        -ms-flex-direction: row;\n            flex-direction: row; }\n    .component--Main .sideBySide > * {\n      -webkit-box-flex: 1;\n          -ms-flex: 1 0 auto;\n              flex: 1 0 auto; }\n  .component--Main .element-description {\n    font-family: \"Segoe UI\", monospace;\n    line-height: 24px;\n    color: white; }\n  .component--Main .defaultLib {\n    position: relative;\n    width: 100%;\n    height: 40px;\n    background-color: rgba(255, 255, 255, 0.6); }\n    .component--Main .defaultLib > .nav {\n      position: absolute;\n      top: 0;\n      height: 40px;\n      width: 20px;\n      text-align: center;\n      line-height: 40px;\n      background-color: cadetblue; }\n      .component--Main .defaultLib > .nav.prev {\n        left: 0; }\n      .component--Main .defaultLib > .nav.next {\n        right: 0; }\n    .component--Main .defaultLib > .items {\n      position: absolute;\n      left: 20px;\n      width: calc(100% - 40px);\n      height: calc(100% - 10px);\n      padding: 5px;\n      display: -webkit-box;\n      display: -ms-flexbox;\n      display: flex;\n      overflow: hidden; }\n      .component--Main .defaultLib > .items > .item {\n        display: inline-block;\n        position: relative; }\n        .component--Main .defaultLib > .items > .item > * {\n          height: 100%; }\n        .component--Main .defaultLib > .items > .item:not(:first-child) {\n          margin-left: 5px; }\n        .component--Main .defaultLib > .items > .item img {\n          height: 100%; }\n  .component--Main .ProductPreview-wrapper {\n    padding: 40px;\n    height: 10vw;\n    background-color: #cce2e3; }\n  .component--Main .drag-item.dragging.within-area img {\n    display: block;\n    height: 100%;\n    width: 100%;\n    -o-object-fit: cover;\n       object-fit: cover; }\n\nimg.pixelated, .pixelated img {\n  -ms-interpolation-mode: nearest-neighbor;\n      image-rendering: -webkit-optimize-contrast;\n      image-rendering: -moz-crisp-edges;\n      image-rendering: -o-pixelated;\n      image-rendering: pixelated; }\n\nbutton {\n  padding: 5px;\n  cursor: pointer;\n  background-color: #cce2e3;\n  border: none;\n  margin: 2px; }\n", ""]);
+exports.push([module.i, "body {\n  margin: 0; }\n\n* {\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none; }\n\n.component--Main {\n  height: 100vh;\n  width: 100vw;\n  background-color: white; }\n  .component--Main .sideBySide {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-orient: horizontal;\n    -webkit-box-direction: normal;\n        -ms-flex-direction: row;\n            flex-direction: row; }\n    .component--Main .sideBySide > * {\n      -webkit-box-flex: 1;\n          -ms-flex: 1 0 auto;\n              flex: 1 0 auto; }\n  .component--Main .element-description {\n    font-family: \"Segoe UI\", monospace;\n    line-height: 24px;\n    color: white; }\n  .component--Main .defaultLib {\n    background-color: rgba(255, 255, 255, 0.6); }\n    .component--Main .defaultLib > .nav {\n      background-color: cadetblue; }\n  .component--Main .ProductPreview-wrapper {\n    padding: 40px;\n    height: 10vw;\n    background-color: #cce2e3; }\n  .component--Main .drag-item.dragging.within-area img {\n    display: block;\n    height: 100%;\n    width: 100%;\n    -o-object-fit: cover;\n       object-fit: cover; }\n\nimg.pixelated,\n.pixelated img {\n  -ms-interpolation-mode: nearest-neighbor;\n      image-rendering: -webkit-optimize-contrast;\n      image-rendering: -moz-crisp-edges;\n      image-rendering: -o-pixelated;\n      image-rendering: pixelated; }\n\nbutton {\n  padding: 5px;\n  cursor: pointer;\n  background-color: #cce2e3;\n  border: none;\n  margin: 2px; }\n", ""]);
 
 // exports
 
